@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 set(BRIDGE_MODE host CACHE STRING "host or firmware")
 set(SPRINGBOARD_ROM "" CACHE FILEPATH "Verified Palm test ROM; empty uses a passive test pattern")
+option(SPRINGBOARD_ROM_SMOKE "Build the manually armed eight-read CS0 experiment" OFF)
+set(SPRINGBOARD_ROM_MANIFEST "" CACHE FILEPATH "Independent verifier manifest for active ROM")
 option(SPRINGBOARD_USB_DEBUG "Core-0-only USB CDC bring-up console" ON)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(DEPS "${CMAKE_CURRENT_LIST_DIR}/.deps")
@@ -51,6 +53,10 @@ if(BRIDGE_MODE STREQUAL "host")
     target_link_libraries(test_springboard PRIVATE sb_model epio)
     target_compile_options(test_springboard PRIVATE -Wall -Wextra -Werror)
     add_test(NAME springboard COMMAND test_springboard)
+    add_executable(test_rom_program tests/test_rom_program.c src/rom_program.c)
+    target_link_libraries(test_rom_program PRIVATE sb_model epio)
+    target_compile_options(test_rom_program PRIVATE -Wall -Wextra -Werror)
+    add_test(NAME rom_program COMMAND test_rom_program)
 else()
     set(ROM_ARGS)
     set(ROM_DEPENDS)
@@ -62,24 +68,40 @@ else()
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/embed_rom.py"
             "${CMAKE_CURRENT_BINARY_DIR}/rom_image.h" ${ROM_ARGS}
         DEPENDS scripts/embed_rom.py ${ROM_DEPENDS} VERBATIM)
-    add_executable(springboard_passive src/main.c src/capture_program.c
-        "${CMAKE_CURRENT_BINARY_DIR}/rom_image.h")
-    target_include_directories(springboard_passive PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "${DEPS}/apio/include")
-    target_link_libraries(springboard_passive PRIVATE sb_model pico_stdlib pico_multicore hardware_pio hardware_clocks)
-    target_compile_options(springboard_passive PRIVATE -Wall -Wextra -Werror)
-    pico_enable_stdio_uart(springboard_passive 0)
-    target_compile_definitions(springboard_passive PRIVATE SB_USB_DEBUG=$<BOOL:${SPRINGBOARD_USB_DEBUG}>)
-    pico_enable_stdio_usb(springboard_passive ${SPRINGBOARD_USB_DEBUG})
-    if(SPRINGBOARD_USB_DEBUG)
-        # Never wait for a terminal or let debug I/O wait for USB buffer space.
-        target_compile_definitions(springboard_passive PRIVATE
-            PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=0
-            PICO_STDIO_USB_STDOUT_TIMEOUT_US=0
-            PICO_STDIO_DEADLOCK_TIMEOUT_MS=0
-            PICO_ENABLE_USB_RESET_VIA_BAUD_RATE=0
-            PICO_ENABLE_USB_RESET_VIA_VENDOR_INTERFACE=0)
+    add_custom_target(embed_rom_header DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/rom_image.h")
+    add_executable(springboard_passive src/main.c src/capture_program.c)
+    set(FIRMWARE_TARGETS springboard_passive)
+    if(SPRINGBOARD_ROM_SMOKE)
+        if(NOT SPRINGBOARD_ROM OR NOT SPRINGBOARD_ROM_MANIFEST)
+            message(FATAL_ERROR "ROM smoke build requires a verified ROM and its manifest")
+        endif()
+        add_custom_target(validate_active_rom
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_rom_model.py"
+                "${SPRINGBOARD_ROM}" --manifest "${SPRINGBOARD_ROM_MANIFEST}"
+            VERBATIM)
+        add_executable(springboard_rom_smoke src/rom_main.c src/rom_program.c)
+        add_dependencies(springboard_rom_smoke validate_active_rom)
+        list(APPEND FIRMWARE_TARGETS springboard_rom_smoke)
     endif()
-    # Run the complete capture image from SRAM; retain flash boot/UF2 loading.
-    pico_set_binary_type(springboard_passive copy_to_ram)
-    pico_add_extra_outputs(springboard_passive)
+    foreach(target IN LISTS FIRMWARE_TARGETS)
+        add_dependencies(${target} embed_rom_header)
+        target_include_directories(${target} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "${DEPS}/apio/include")
+        target_link_libraries(${target} PRIVATE sb_model pico_stdlib pico_multicore hardware_pio hardware_clocks)
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Werror)
+        pico_enable_stdio_uart(${target} 0)
+        target_compile_definitions(${target} PRIVATE SB_USB_DEBUG=$<BOOL:${SPRINGBOARD_USB_DEBUG}>)
+        pico_enable_stdio_usb(${target} ${SPRINGBOARD_USB_DEBUG})
+        if(SPRINGBOARD_USB_DEBUG)
+            # Never wait for a terminal or let debug I/O wait for USB buffer space.
+            target_compile_definitions(${target} PRIVATE
+                PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=0
+                PICO_STDIO_USB_STDOUT_TIMEOUT_US=0
+                PICO_STDIO_DEADLOCK_TIMEOUT_MS=0
+                PICO_ENABLE_USB_RESET_VIA_BAUD_RATE=0
+                PICO_ENABLE_USB_RESET_VIA_VENDOR_INTERFACE=0)
+        endif()
+        # Run the complete image from SRAM; retain flash boot/UF2 loading.
+        pico_set_binary_type(${target} copy_to_ram)
+        pico_add_extra_outputs(${target})
+    endforeach()
 endif()

@@ -1,10 +1,15 @@
 # RP2350 Springboard base firmware
 
 Independent Core2350B (B1/B2) bring-up project for a Handspring Visor Prism.
-The root NIO firmware build does not include this directory. This is a **passive
-capture image**, not yet an active ROM emulator or a USB/NIO bridge. It cannot
+The root NIO firmware build does not include this directory. The default is a **passive
+capture image**, not an active ROM emulator or a USB/NIO bridge. It cannot
 serve module ROM data; OS slot registration alone does not prove ROM response. Do not connect it to a Prism
 until the private bring-up plan's electrical/physical gates have passed.
+
+A separate, opt-in [eight-word ROM experiment](ROM_TEST.md) now builds a manually
+armed CS0 responder for the installed RAM test app. That image is restricted to
+the app's widely spaced reads; full module ROM recognition and timing
+qualification remain pending. It does not change the passive image's behavior.
 
 ## Implemented
 
@@ -35,8 +40,9 @@ Any FIFO RXSTALL or software drop invalidates completeness. Hardware input
 synchronization and physical timing are not proven by epio tests.
 
 BENCH_ACTIVE/PRISM_ROM names are reserved in the model and explicitly rejected.
-Active output qualification, late-response cancellation, write sampling and
-cross-window transaction correlation remain future work after passive evidence.
+The separate ROM experiment models output release and late-response cancellation
+within its documented timing restriction. Active output qualification, write
+sampling and general cross-window transaction correlation remain future work.
 There is no claim of 300 ns capability or a completed Phase 1 gate.
 
 ## Build
@@ -64,6 +70,25 @@ Outputs: `build/firmware/springboard_passive.{elf,uf2,bin}` and its ELF map file
 Embedding a ROM does not enable bus outputs. Inspect the map to confirm SRAM
 placement of `capture_core`, `sb_capture_program_init`, `sb_trace_push` and
 `sb_rom_sram`. The full image runs from SRAM; no overclock or flash write occurs.
+
+### Check a packaged ROM against the host model
+
+After `fujinet-palm` independently verifies its PRC/ROM and generates the JSON
+manifest, run from this directory:
+
+```sh
+python3 scripts/check_rom_model.py /absolute/path/visorbus.rom \
+  --manifest /absolute/path/visorbus.json
+```
+
+This checks the manifest hash/size, compiles the actual C model in a temporary
+host shared library, copies the image with guard bytes, checks every big-endian
+word against the source bytes, tests invalid-address fill, rejects a corrupted
+image without altering the destination, and exercises sparse upper address lines
+including the GP39 hole. `HOST_CC` selects the host C compiler (default `cc`).
+The JSON report is host evidence only, not RP timing, ROM service, or physical
+address/data-pin qualification. The current Palm0.3 image has signature words
+`FEED BEEF` at offsets8/A; a passive bus returning `FFC2` is not that ROM response.
 
 ### USB debug build switch
 
@@ -193,3 +218,79 @@ SWD for those separate states. LED polarity follows the active-high circuit in t
 
 No NIO USB transport, IRQ generation, active read response, mailbox FIFO or network
 service is included. These are subsequent phase deliverables.
+
+### Agent-driven sigrok timing observation
+
+The host-only tools require Python3 standard library and `sigrok-cli` (no pip
+packages). Install the distro's `pulseview`, `sigrok-cli` and
+`sigrok-firmware-fx2lafw` for an FX2-based clone. Scan its actual USB connection
+before capture; the connection address changes after unplugging/firmware loading.
+
+Wiring, with a common analyzer/prototype ground and passive inputs only:
+
+| Analyzer | Signal | Core GPIO | Core pad |
+|---|---|---|---|
+| D0 | /CS0 |16|J2|
+| D1 | /OE |18|J3|
+| D2 | /WE |19|K3|
+| D3 | /RESET |45|B10|
+| D4 | A1 |1|B2|
+| D5 | A2 |2|B1|
+| D6 | A3 |3|C2|
+| D7 | /CS1 |17|K2|
+
+Keep the module fully seated. Confirm probe connections before starting the
+capture; do not connect analyzer VCC. Close other analyzer clients. Close minicom
+only if the capture operator will take over RP debug; the timing tools themselves
+never acquire or change the RP serial port or generate a read stimulus.
+
+```sh
+sigrok-cli --scan
+python3 scripts/capture_timing.py /absolute/path/to/new-run-directory \
+  --driver fx2lafw:conn=BUS.ADDRESS
+```
+
+Defaults: eight channels12MHz, one million saved samples (83.3ms),10% requested
+pretrigger history, D0 falling-edge trigger,300s host timeout. The short saved
+window starts around the trigger; it is not an83.3ms deadline for pressing Read.
+The process-running message is a host startup check, not a hardware arm ACK.
+Do not use `--wait-trigger`: that option discards pretrigger history. The operator
+arms the RP and checks status, starts the analyzer, then tells the user to tap
+Read once. After capture, stop/dump the RP and preserve its metadata separately.
+USB-level short capture was tested on the unconnected KeeYees clone at24MHz;
+a longer24MHz capture was shortened, so use12MHz for the current USB setup.
+A real12MHz triggered capture matched all eight reads with one million saved
+samples and clean RP metadata. A software-advertised48MHz option is not qualified.
+The subprocess keeps a private stdin pipe open: inherited EOF otherwise acts as
+sigrok-cli's stop-key input and can end acquisition before a trigger arrives.
+
+Every invocation uses a fresh directory and preserves raw `capture.sr`, command,
+UTC times, version info, sample count/rate/hash and sigrok stdout/stderr logs.
+Timeout/interruption sends SIGINT then bounded kill if necessary; incomplete or
+wrong-rate/count captures are refused. A valid file with unexpected activity exits2
+(INCONCLUSIVE), rather than claiming a hardware failure. Review logs for transport
+errors; the sample file itself cannot prove loss-free USB acquisition.
+
+`analyze_timing.py` can also process a saved session independently:
+
+```sh
+python3 scripts/analyze_timing.py capture.sr --json timing.json --csv cycles.csv
+python3 tests/test_timing.py
+```
+
+It reads actual sigrok version2 eight-channel one-byte chunks, validates channel
+names/order/rate/size, identifies complete CS0/OE pulses, flags clipped pulses and
+invalid controls, reports signed strobe differences, widths/gaps and A1..A3 setup
+observations, and compares the eight low addresses with0..E. Output is JSON plus
+per-cycle CSV. Synthetic tests cover both strobe orders, invalid controls, clipped
+captures, unstable addresses and malformed metadata/chunk numbering. A subprocess
+regression test reproduces the inherited-stdin EOF stop and verifies the private
+stdin pipe prevents it. A synthetic
+session also passed actual sigrok re-export and analysis; demo-driver short
+captures were correctly refused, not used as hardware evidence.
+
+At12MHz the sample spacing is83.3ns (41.7ns at24MHz); edge-difference
+quantization is approximately+/- one sample before clock/threshold/probe uncertainty. This cannot qualify5/15ns
+relationships or a20ns active-response margin. Reports always set timing_qualified
+and hardware_rom_response_verified false. No data bus channels or upper addresses
+are measured. Active response latency and bus-release timing need later tests.
