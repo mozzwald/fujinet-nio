@@ -14,13 +14,18 @@ case "$mode" in
     python3 "$root/tests/test_embed_rom.py"
     ;;
   firmware)
+    usb_debug=${SPRINGBOARD_USB_DEBUG:-ON}
+    case "$usb_debug" in
+      ON|OFF) ;;
+      *) echo "SPRINGBOARD_USB_DEBUG must be ON or OFF" >&2; exit 2 ;;
+    esac
     python3 "$root/scripts/bootstrap.py" --mode firmware
     args=()
     if [[ $# -gt 1 ]]; then args+=("-DSPRINGBOARD_ROM=$2");
     else args+=("-DSPRINGBOARD_ROM="); fi
     cmake -S "$root" -B "$root/build/firmware" -DBRIDGE_MODE=firmware \
       -DPICO_BOARD=waveshare_core2350b -DPICO_PLATFORM=rp2350-arm-s \
-      -DCMAKE_BUILD_TYPE=Release "${args[@]}"
+      -DCMAKE_BUILD_TYPE=Release -DSPRINGBOARD_USB_DEBUG="$usb_debug" "${args[@]}"
     cmake --build "$root/build/firmware" --parallel 4
     ;;
   *) echo "Usage: $0 host | firmware [absolute-path-to-verified-ROM]" >&2; exit 2 ;;

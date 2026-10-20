@@ -1,6 +1,17 @@
 #include "bus_model.h"
 #include <string.h>
 
+void sb_monitor_reset(struct sb_reset_monitor *monitor, bool level) {
+    if (monitor->initialized && monitor->level != level) {
+        if (level)
+            ++monitor->released;
+        else
+            ++monitor->asserted;
+    }
+    monitor->level = level;
+    monitor->initialized = true;
+}
+
 uint32_t sb_address(uint32_t low, uint32_t high) {
     /* high is the GPIO16..47 window. Skip GP39 between A18 and A19. */
     return (low & 0x0000fffeu) | ((high & 0x00700000u) >> 4) |
@@ -89,8 +100,14 @@ bool sb_register_write(struct sb_registers *regs, uint32_t address,
     ++regs->writes;
     return true;
 }
+void sb_trace_clear(struct sb_trace *trace) {
+    memset(trace, 0, sizeof(*trace));
+}
+bool sb_trace_full(const struct sb_trace *trace) {
+    return trace->count >= SB_CAPTURE_CAPACITY;
+}
 bool sb_trace_push(struct sb_trace *trace, struct sb_capture sample) {
-    if (trace->count >= SB_CAPTURE_CAPACITY) {
+    if (sb_trace_full(trace)) {
         ++trace->dropped;
         return false;
     }

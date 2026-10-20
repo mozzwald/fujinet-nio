@@ -37,6 +37,13 @@ struct sb_trace {
     uint32_t count, dropped;
 };
 
+/* Sampled on core 0; the first level establishes a baseline, not an edge. */
+struct sb_reset_monitor {
+    bool initialized, level;
+    uint32_t asserted, released;
+};
+void sb_monitor_reset(struct sb_reset_monitor *monitor, bool level);
+
 uint32_t sb_address(uint32_t low, uint32_t high);
 enum sb_cycle sb_classify(uint32_t high);
 uint16_t sb_rom_word(const uint8_t *rom, size_t size, uint32_t address);
@@ -47,6 +54,8 @@ void sb_register_reset(struct sb_registers *regs);
 uint16_t sb_register_read(struct sb_registers *regs, uint32_t address);
 bool sb_register_write(struct sb_registers *regs, uint32_t address,
                        uint16_t value);
+void sb_trace_clear(struct sb_trace *trace);
+bool sb_trace_full(const struct sb_trace *trace);
 bool sb_trace_push(struct sb_trace *trace, struct sb_capture sample);
 /* This base firmware intentionally refuses output-driving modes. */
 bool sb_mode_supported(enum sb_mode mode);

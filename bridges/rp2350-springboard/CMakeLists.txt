@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 set(BRIDGE_MODE host CACHE STRING "host or firmware")
 set(SPRINGBOARD_ROM "" CACHE FILEPATH "Verified Palm test ROM; empty uses a passive test pattern")
+option(SPRINGBOARD_USB_DEBUG "Core-0-only USB CDC bring-up console" ON)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(DEPS "${CMAKE_CURRENT_LIST_DIR}/.deps")
 if(NOT BRIDGE_MODE MATCHES "^(host|firmware)$")
@@ -67,7 +68,17 @@ else()
     target_link_libraries(springboard_passive PRIVATE sb_model pico_stdlib pico_multicore hardware_pio hardware_clocks)
     target_compile_options(springboard_passive PRIVATE -Wall -Wextra -Werror)
     pico_enable_stdio_uart(springboard_passive 0)
-    pico_enable_stdio_usb(springboard_passive 0)
+    target_compile_definitions(springboard_passive PRIVATE SB_USB_DEBUG=$<BOOL:${SPRINGBOARD_USB_DEBUG}>)
+    pico_enable_stdio_usb(springboard_passive ${SPRINGBOARD_USB_DEBUG})
+    if(SPRINGBOARD_USB_DEBUG)
+        # Never wait for a terminal or let debug I/O wait for USB buffer space.
+        target_compile_definitions(springboard_passive PRIVATE
+            PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=0
+            PICO_STDIO_USB_STDOUT_TIMEOUT_US=0
+            PICO_STDIO_DEADLOCK_TIMEOUT_MS=0
+            PICO_ENABLE_USB_RESET_VIA_BAUD_RATE=0
+            PICO_ENABLE_USB_RESET_VIA_VENDOR_INTERFACE=0)
+    endif()
     # Run the complete capture image from SRAM; retain flash boot/UF2 loading.
     pico_set_binary_type(springboard_passive copy_to_ram)
     pico_add_extra_outputs(springboard_passive)
