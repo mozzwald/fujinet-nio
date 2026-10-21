@@ -14,8 +14,9 @@ case "$mode" in
     python3 "$root/tests/test_embed_rom.py"
     python3 "$root/tests/test_timing.py"
     python3 "$root/tests/test_capture_timing.py"
+    python3 "$root/tests/test_hantek_scope.py"
     ;;
-  firmware|rom-smoke)
+  firmware|rom-smoke|rom-marker)
     usb_debug=${SPRINGBOARD_USB_DEBUG:-ON}
     case "$usb_debug" in
       ON|OFF) ;;
@@ -23,13 +24,17 @@ case "$mode" in
     esac
     python3 "$root/scripts/bootstrap.py" --mode firmware
     dir="$root/build/firmware"
-    args=(-DSPRINGBOARD_ROM_SMOKE=OFF -DSPRINGBOARD_ROM_MANIFEST=)
-    if [[ "$mode" == rom-smoke ]]; then
+    args=(-DSPRINGBOARD_ROM_SMOKE=OFF -DSPRINGBOARD_ROM_MANIFEST= -DSPRINGBOARD_DRIVE_MARKER=OFF)
+    if [[ "$mode" == rom-smoke || "$mode" == rom-marker ]]; then
       if [[ $# -ne 3 ]]; then
-        echo "rom-smoke requires absolute ROM and verifier manifest paths" >&2; exit 2
+        echo "$mode requires absolute ROM and verifier manifest paths" >&2; exit 2
       fi
       dir="$root/build/rom-smoke"
-      args=(-DSPRINGBOARD_ROM_SMOKE=ON "-DSPRINGBOARD_ROM_MANIFEST=$3")
+      args=(-DSPRINGBOARD_ROM_SMOKE=ON "-DSPRINGBOARD_ROM_MANIFEST=$3" -DSPRINGBOARD_DRIVE_MARKER=OFF)
+      if [[ "$mode" == rom-marker ]]; then
+        dir="$root/build/rom-marker"
+        args+=(-DSPRINGBOARD_DRIVE_MARKER=ON)
+      fi
     fi
     if [[ $# -gt 1 ]]; then args+=("-DSPRINGBOARD_ROM=$2");
     else args+=("-DSPRINGBOARD_ROM="); fi
@@ -38,5 +43,5 @@ case "$mode" in
       -DCMAKE_BUILD_TYPE=Release -DSPRINGBOARD_USB_DEBUG="$usb_debug" "${args[@]}"
     cmake --build "$dir" --parallel 4
     ;;
-  *) echo "Usage: $0 host | firmware [absolute-path-to-verified-ROM] | rom-smoke absolute-ROM absolute-manifest" >&2; exit 2 ;;
+  *) echo "Usage: $0 host | firmware [absolute-path-to-verified-ROM] | {rom-smoke|rom-marker} absolute-ROM absolute-manifest" >&2; exit 2 ;;
 esac

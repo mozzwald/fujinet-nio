@@ -1,8 +1,8 @@
-# Experimental eight-word ROM response test
+# Experimental bounded ROM response tests
 
-This is a manually armed CS0 signature probe for the existing Visor Bus Test 0.3
+This is a manually armed CS0 responder for the existing Visor Bus Test 0.3
 RAM app. It is **not a bootable module ROM emulator**. Full ROM recognition,
-CRC readback, insertion, reset, CS1, writes and IRQ service remain disabled or
+insertion, reset, CS1, writes and IRQ service remain disabled or
 untested. The default `firmware` build is still passive.
 
 ## Build
@@ -24,7 +24,66 @@ Both cores and the ROM table run in SRAM at 150 MHz; PSRAM is unused.
 
 USB debugging uses the same compile-time `SPRINGBOARD_USB_DEBUG=ON/OFF` switch.
 An OFF smoke-test image stays disarmed: this experiment deliberately has no
-automatic/SWD bypass for USB arming. No new PRC or HotSync is required.
+automatic/SWD bypass for USB arming. The eight-word test uses the installed PRC;
+the full readback below uses a separate PRC.
+
+## Separate drive-enable scope diagnostic
+
+Build `./scripts/build.sh rom-marker /absolute/path/visorbus.rom /absolute/path/visorbus.json`.
+The output is `build/rom-marker/springboard_rom_smoke.uf2`; the normal smoke
+build directory is preserved. The banner must include `DRIVE_MARKER=GP39`.
+This variant starts disarmed and uses the same bounded arming commands/ROM.
+
+GPIO39 (onboard LED, outside the bus) is a mandatory one-bit PIO side-set
+output: high on instructions23..28, low elsewhere. Its transitions accompany
+MOV PINDIRS enable/release in the same instruction, without adding PIO cycles.
+Core0 LED writes/heartbeat are disabled. The side-set indicates the commanded
+PIO drive interval; it does not measure data-pad voltage, pad skew or drive
+strength. LED loading and code-layout changes are experimental perturbations.
+
+While stopped, use 10x probes/common module ground: first CH1 CS0/GP16,
+CH2 marker/GP39, with the existing falling-CS0 trigger. A subsequent reviewed
+capture can use CH1 marker/GP39, CH2 D9/GP29 and a rising-marker trigger.
+A late marker supports response latency; an early marker followed by prolonged
+intermediate data shifts attention to loading/contention/configuration. Preserve
+actual Palm mismatches and do not call a first-word capture a known failing word.
+
+Debug/Release tests run both baseline and marker programs over the same480
+cancellation phases, stalls and preload/mapping checks. Pinned EPIO lacks
+side-set: the test strips the side-set encoding and explicitly models it each
+clock against independently executed data directions. It pre-maps GP39 because
+EPIO otherwise drops initialization SET effects before applying the GPIO mux;
+silicon retains PIO latches independently. These accommodations are model
+limitations, not hardware verification. GP47 remains untouched.
+
+## Full-image readback before module recognition
+
+After the eight-word test passes, install `fujinet-palm`'s separate
+`palm/apps/visorcheck/visorcheck.prc` (**Visor ROM Check**, creator FNVC) into RAM.
+Keep the RAM Visor Bus Test for now. The ROM itself remains the verified original
+7248-byte Visor Bus Test 0.3 image, CRC32 `484e213e`; it does not contain this new
+checker. Its expected CRC is generated from the verified artifact when building
+the RAM checker, avoiding any checksum embedded in its own checked image.
+
+1. Flash the updated `springboard_rom_smoke.uf2`; it still starts disarmed.
+2. In the USB console send `s`, require ROM ready and stopped, then send **`b`**
+   and `s`. Require `arm_pending=0 stopped=0 limit=3624`.
+3. Open **Visor ROM Check** and tap **Check ROM**, then confirm Read. It reads
+   one volatile 16-bit CS0 word per step, with at least one OS tick between steps,
+   validates the slot/mapping each time, keeps the screen awake and permits Cancel.
+4. Wait roughly 40 seconds. Require **Full ROM CRC PASS**, read bytes `00001C50`
+   (7248), and Bus CRC/Expected both `484E213E`. This CRC is calculated from the
+   actual bus words on the Prism in big-endian byte order, not a local resource.
+5. Send `s`; require `stopped=1 requests=3624 posted=3624 completed=3624
+   limit=3624`. `d` retains only the first eight CPU replies. Save photo/status.
+6. If interrupted, cancelled or mismatched, send `x`, confirm stopped and retain
+   evidence. Leaving the app does not automatically stop the RP. Do not reinsert
+   or reset the module. No full ROM registration/launch is enabled by `b`.
+
+Only after this passes, prepare continuous read service and its separate
+back-to-back/cancellation checks. Before an eventual launcher test, remove the
+**RAM copy of Visor Bus Test** to prevent name/creator shadowing; retain the
+separately named **Visor ROM Check**. Keep scope/bench qualifications open.
 
 ## First physical test
 
@@ -46,7 +105,8 @@ automatic/SWD bypass for USB arming. No new PRC or HotSync is required.
    retain the evidence. Do not proceed to insertion/ROM launch. A correct
    signature permits planning broader readback; it does not establish ROM launch.
 
-The LED is solid while stopped and pulses once per second while armed. `x`
+`a` arms eight cycles; `b` arms ROM-size/2 cycles. The LED is solid while stopped
+and pulses once per second while armed. `x`
 requests stop; if a read is still selected, it waits for PIO-owned release.
 `d` is allowed only when stopped with no arm pending. A fresh `a` clears counters
 and records. No autonomous repeated retries are performed.
@@ -54,7 +114,7 @@ and records. No autonomous repeated retries are performed.
 ## Output ownership and cancellation
 
 Only PIO1/SM0 owns GP20..35 (D0..D15); all other bus pins remain input-only.
-GP39 is the LED; GP47 remains untouched. The 31-instruction APIO program waits for
+GP39 is the LED; GP47 remains untouched. The 32-instruction APIO program waits for
 CS0 release, then a CS0/OE read with CS1/WE high. It pushes one high-window
 snapshot. The dedicated, interrupt-disabled core 1 samples the low address and
 publishes one SRAM table word. There are no USB calls, allocations or CRC work
@@ -96,3 +156,33 @@ condition at 80 reply phases, CPU stalls/missing and late replies, held selectio
 rearm with the next read already selected, data preload/mapping and input-only
 ownership. Physical bus response, address/data continuity and full ROM operation
 remain pending. Return to bench/scope qualification before enabling boot scans.
+
+## Diagnosing intermittent failed reads
+
+The core0-idle image reduced avoidable timer/GPIO traffic, but a physical run
+still had five wrong words. It is not a confirmed fix. The instrumented image
+adds a PIO IRQ1 marker immediately after enabling the data output directions.
+CPU samples it only at the already-Hi-Z IRQ0 completion, then clears IRQ1 before
+acknowledging IRQ0. All 480 cancellation phases also check that this marker
+matches whether output drive occurred; missing replies never set it.
+
+USB `s` now emits a second line:
+
+```text
+enabled=... not_enabled=... address_errors=... anomalies=...
+```
+
+`enabled` counts cycles in which PIO enabled outputs, not successful CPU samples
+or adequate data setup. `not_enabled` identifies cycles that ended without drive.
+`address_errors` compares the captured address to the sequential word expected
+by the installed RAM checker's run. It assumes that test, not arbitrary access.
+`e` dumps the first eight anomalous cycle indices, expected/observed addresses,
+high snapshots and enabled flags after stopping. Missing CPU request records are
+also anomalous. All counters/logs reset on arm.
+
+Flash `springboard_rom_smoke-drive-diagnostics.uf2`, repeat the unchanged RAM
+checker0.2/b test, and save both `s` lines and `e` output along with CRC/Details.
+No HotSync is required. One extra PIO instruction follows direction enable;
+this instrumentation can affect phase/hold timing and does not measure the
+exact previous build. The modeled release ceiling remains12PIO clocks, excluding
+hardware synchronization and pad delays. Continuous ROM execution remains gated.

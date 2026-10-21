@@ -27,15 +27,22 @@ def capture(args):
         raise ValueError("samples must be within 1000..32000000")
     if args.rate <= 0 or not 1 <= args.timeout <= 600:
         raise ValueError("positive rate and timeout within 1..600 seconds required")
+    wait_trigger = getattr(args, "wait_trigger", False)
+    pretrigger = 0 if wait_trigger else 10
     command = ["sigrok-cli", "--driver", args.driver,
-               "--config", f"samplerate={args.rate}:captureratio=10",
+               "--config", f"samplerate={args.rate}:captureratio={pretrigger}",
                "--channels", ",".join(f"D{i}" for i in range(8)),
                "--samples", str(args.samples), "--triggers", "D0=f",
                "--loglevel", "3", "--output-format", "srzip", "--output-file", str(args.directory / "capture.sr")]
+    if wait_trigger:
+        command.append("--wait-trigger")
     args.directory.mkdir(parents=True, exist_ok=False)
     metadata = {"started_utc": utc(), "command": command,
                 "rate_requested_hz": args.rate, "samples_requested": args.samples,
-                "trigger": "D0 falling", "pretrigger_requested_percent": 10,
+                "trigger": "D0 falling", "pretrigger_requested_percent": pretrigger,
+                "wait_trigger": wait_trigger,
+                "trigger_boundary_note": ("No pretrigger history; first CS0 pulse can be boundary-clipped"
+                                          if wait_trigger else "10 percent pretrigger history requested"),
                 "wiring": {f"D{i}": name for i, name in enumerate(
                     ["CS0", "OE", "WE", "RESET", "A1", "A2", "A3", "CS1"])},
                 "timed_out": False, "interrupted": False,
@@ -43,8 +50,9 @@ def capture(args):
                 "hardware_arm_acknowledgement": False}
     metadata_path = args.directory / "acquisition.json"
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
-    # Neither --wait-trigger nor a wall-clock --time limit: keep the pretrigger
-    # history and let the user manually start the eight-read burst.
+    # Default preserves pretrigger history. Explicit wait mode suppresses it,
+    # but can keep a manual-trigger acquisition alive on affected CLI builds.
+    # Never replace the trigger wait with a short acquisition wall-clock limit.
     with (args.directory / "sigrok.stdout.log").open("w") as stdout, \
          (args.directory / "sigrok.stderr.log").open("w") as stderr:
         version = subprocess.run(["sigrok-cli", "--version"], capture_output=True, text=True)
@@ -102,6 +110,8 @@ def main():
     parser.add_argument("--rate", type=int, default=12_000_000)
     parser.add_argument("--samples", type=int, default=1_000_000)
     parser.add_argument("--timeout", type=float, default=300)
+    parser.add_argument("--wait-trigger", action="store_true",
+                        help="Wait explicitly for trigger with zero pretrigger history; first pulse may be clipped")
     args = parser.parse_args()
     try:
         return capture(args)

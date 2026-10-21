@@ -10,6 +10,8 @@ A separate, opt-in [eight-word ROM experiment](ROM_TEST.md) now builds a manuall
 armed CS0 responder for the installed RAM test app. That image is restricted to
 the app's widely spaced reads; full module ROM recognition and timing
 qualification remain pending. It does not change the passive image's behavior.
+After the signature test, USB `b` arms a bounded full-image readback using the
+separate Visor ROM Check RAM app. This does not enable automatic ROM launch.
 
 ## Implemented
 
@@ -259,8 +261,11 @@ arms the RP and checks status, starts the analyzer, then tells the user to tap
 Read once. After capture, stop/dump the RP and preserve its metadata separately.
 USB-level short capture was tested on the unconnected KeeYees clone at24MHz;
 a longer24MHz capture was shortened, so use12MHz for the current USB setup.
-A real12MHz triggered capture matched all eight reads with one million saved
-samples and clean RP metadata. A software-advertised48MHz option is not qualified.
+A real12MHz triggered capture saved one million samples and observed the eight
+low addresses with clean RP metadata. Later probe verification found that the
+OE/WE-labelled channels were connected incorrectly; pre-correction control
+classifications/timings are unqualified. A fresh capture with corrected probes
+must establish those signals. A software-advertised48MHz option is not qualified.
 The subprocess keeps a private stdin pipe open: inherited EOF otherwise acts as
 sigrok-cli's stop-key input and can end acquisition before a trigger arrives.
 
@@ -294,3 +299,134 @@ quantization is approximately+/- one sample before clock/threshold/probe uncerta
 relationships or a20ns active-response margin. Reports always set timing_qualified
 and hardware_rom_response_verified false. No data bus channels or upper addresses
 are measured. Active response latency and bus-release timing need later tests.
+
+### Hantek DSO2D15 USB waveform tooling
+
+`scripts/hantek_scope.py` uses Python's standard library and Linux USBTMC; no VISA
+installation is required. Find the current `/dev/usbtmc*` device after plugging
+in the scope (its number can change). If root owns it with mode0600, grant your
+user a temporary ACL, for example `sudo setfacl -m u:mozzwald:rw /dev/usbtmc3`.
+Reconnection may require granting access again.
+
+```sh
+python3 scripts/hantek_scope.py --device /dev/usbtmc3 identify
+python3 scripts/hantek_scope.py --device /dev/usbtmc3 settings
+# Explicitly changes both channels and trigger/timebase; use 10x probes.
+python3 scripts/hantek_scope.py --device /dev/usbtmc3 setup calibration
+# First stop the intended acquisition using the scope's front panel.
+python3 scripts/hantek_scope.py --device /dev/usbtmc3 download /tmp/visor-scope-001
+python3 tests/test_hantek_scope.py
+```
+
+`identify`, `settings` and `download` send queries only. The explicit `setup`
+action changes acquisition and trigger settings: `calibration` enables both
+channels, 10x probe factors, DC coupling, 1V/div, 500us/div, normal4000-point
+acquisition, automatic CH1 rising-edge trigger at1.65V; `bus` uses100ns/div and
+a single CH1 falling-edge trigger instead. Both save settings before/after as
+JSON on stdout; redirect this to the evidence directory. The tool never resets
+the scope, enables the signal generator or automatically arms an RP bus test.
+Use front-panel RUN/STOP to resume acquisition if needed.
+`download` preserves raw vendor packets, settings, query transcript, hashes and
+UTC timestamps in a **new** evidence directory. Errors leave the report and
+received packets intact. Reusing an evidence directory is refused. Deadlines,
+packet bounds and transfer-counter checks reject incomplete transfers.
+
+Protocol reference: the official [DSO2000 Series SCPI programming manual](https://hantek.com/uploadpic/hantek/files/20211231/DSO2000%20Series%C2%A0SCPI%C2%A0Programmers%C2%A0Manual.pdf),
+section7.1. Actual DSO2D15 firmware1.1.0 returns a128-byte initial packet,
+then waveform packets. Each packet's length field includes its11-byte prefix;
+the counter is the starting transfer offset, not a cumulative completion count.
+The initial99bytes after the common29-byte prefix count toward the transfer.
+These are vendor-specific framing conventions, not IEEE488.2 block lengths.
+Linux USBTMC requires initiating read() before waiting for a response; text
+responses end with the USB EOM flag and may contain no LF. Kernel ioctl timeouts
+bound reads; advisory locking prevents this tool opening the same device twice. It does **not** use a generic Rigol
+waveform preamble. The observed firmware's header field widths differ from the manual, so the
+entire99-byte metadata region is preserved raw rather than silently decoding
+wrong byte offsets. The implementation preserves ambiguous fields raw;
+channel ordering, voltage conversion and time origin must be validated on this
+actual scope before adding calibrated CSV export or automatic timing judgments.
+A completed byte transfer is not proof of a useful triggered acquisition.
+
+The host tests exercise fragmented replies, binary length framing, malformed and
+oversized blocks, truncated-reply deadlines, transfer progress and preservation
+of failed captures. Physical scope communication and waveform interpretation are
+separate hardware checks; passing these tests does not qualify Springboard timing.
+
+USB preflight on the connected DSO2D15 firmware1.1.0 verified identification,
+all26 settings queries and a complete two-packet transfer (128+4029bytes:
+99metadata+4000sample bytes). This was an unconnected running acquisition,
+not a Springboard measurement. Dual-channel ordering remains unqualified; single-channel zero-offset
+scaling was subsequently checked against probe compensation; do not infer voltage or CPU timing from uncalibrated sample bytes.
+
+#### Calibration findings on firmware1.1.0
+
+The probe-comp check produces about1kHz/5V. At zero offset, normal DC acquisition,
+single-channel sample bytes are signed8-bit codes with25counts/division. The
+conversion `signed_code * queried_volts_per_division / 25` reproduces the
+calibration plateau; downloaded frequency agrees with the scope's frequency
+measurement. This empirical check is not a traceable instrument calibration.
+
+**Dual-channel USB download is currently unsuitable for relative timing.** On the
+tested firmware, both data packets are byte-identical to CH1 even with CH1 at
+2V/div and CH2 at5V/div; CH2 alone returns the expected different codes. A
+CH2-only transfer emits a `#9000000000` sentinel for the disabled CH1 slot before
+the real data packet. The tool preserves and skips at most four such sentinels.
+The built-in period query also returned an invalid1e-15 result while frequency
+read1kHz, so built-in measurements are not accepted indiscriminately.
+
+The `analyze` action verifies complete contiguous transfers, packet hashes,
+firmware identity, enabled channel, sample count and header/query sample rate.
+It accepts only a single channel, normal DC acquisition, zero offset and no
+inversion. It writes signed sample codes, empirical volts, sample-relative time
+CSV and summary JSON into a new output directory. It rejects dual-channel
+captures, decimation, metadata mismatches and evidence overwrites. Time zero is
+the first downloaded sample, not the trigger. Trigger alignment, channel skew
+and Springboard edge timing remain unqualified.
+
+```sh
+python3 scripts/hantek_scope.py analyze /tmp/hantek-calibration-005 /tmp/hantek-decoded
+```
+
+Selecting channels separately while stopped also returns only the frozen CH1
+bytes. The decoder now refuses stopped raw captures because selection alone does
+not establish the actual sample source. Do not infer a CS0/data relationship from
+those bytes. The original direct dual-channel bulk path remains unqualified.
+
+#### Stopped tracking-cursor export
+
+The documented tracking-cursor interface can read the two frozen **screen
+traces** independently even when bulk data duplicates CH1. It exports CSV/JSON,
+checks acquisition is stopped for every point, verifies both channel sources,
+rejects nonfinite/different-time values, requires stable acquisition settings,
+and restores/readbacks prior cursor settings. Errors preserve partial evidence.
+This is slower and has display/cursor quantization, not necessarily ADC sample
+resolution. A stopped probe-comp test returned distinct~5V readings for both
+channels; sampled CH1 cursor values matched saved raw samples exactly.
+
+```sh
+python3 scripts/hantek_scope.py cursor-download /tmp/hantek-cursor-001 --start 10 --end 730 --step 4
+python3 scripts/hantek_scope.py setup calibration-edge > /tmp/hantek-edge-setup.json
+```
+
+On observed firmware the cursor time value **decreases** as pixel position
+increases. Raw CH1 correlation establishes increasing pixels follow increasing
+sample indices in this acquisition. CSV preserves reported times unchanged;
+time sign/origin, interpolation, channel skew and fast-edge resolution still
+need validation before bus timing conclusions. Cursor AY/BY pixel queries were
+not useful; only the documented voltage-value queries are used.
+
+`calibration-edge` requests both channels at2V/div,100ns/div,normal4000points,
+CH1 rising edge at~1.65V and SINGLE sweep. The scope ignored the remote SINGLE
+setting (both mixed-case and uppercase); setup JSON warns when it does not read
+back. **Use the front-panel SINGLE button** for the fresh calibration capture.
+Acquisition stays stopped until that action. Settings changes do not qualify or
+relabel the old frozen record. No scope firmware was updated; the downloaded
+official package contained an update image without release notes and was kept
+outside the repository.
+
+A later fast bus capture exposed isolated cursor voltage artifacts (for example
+CH1=-1.84V where the simultaneous raw CH1 record is0V). Most other cursor points
+matched raw samples exactly at the calibrated sample offset. Preserve those
+mismatches; do not infer physical undershoot from cursor output alone. Raw CH1
+can cross-check CS0; bulk CH2 remains duplicated and cannot verify D8. Treat
+cursor-based response timing as approximate diagnostics, not electrical signoff.
