@@ -186,3 +186,6 @@ No HotSync is required. One extra PIO instruction follows direction enable;
 this instrumentation can affect phase/hold timing and does not measure the
 exact previous build. The modeled release ceiling remains12PIO clocks, excluding
 hardware synchronization and pad delays. Continuous ROM execution remains gated.
+
+For the separate64-word CPU/PIO constant experiment and selectable stage markers,
+see [LATENCY_TEST.md](LATENCY_TEST.md). The baseline described above is preserved.
