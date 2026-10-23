@@ -16,7 +16,7 @@ case "$mode" in
     python3 "$root/tests/test_capture_timing.py"
     python3 "$root/tests/test_hantek_scope.py"
     ;;
-  firmware|rom-smoke|rom-marker|rom-latency)
+  firmware|rom-smoke|rom-marker|rom-latency|rom-fast)
     usb_debug=${SPRINGBOARD_USB_DEBUG:-ON}
     case "$usb_debug" in
       ON|OFF) ;;
@@ -24,21 +24,22 @@ case "$mode" in
     esac
     python3 "$root/scripts/bootstrap.py" --mode firmware
     dir="$root/build/firmware"
-    args=(-DSPRINGBOARD_LATENCY_DIAGNOSTICS=OFF -DSPRINGBOARD_ROM_SMOKE=OFF -DSPRINGBOARD_ROM_MANIFEST= -DSPRINGBOARD_DRIVE_MARKER=OFF)
-    if [[ "$mode" == rom-smoke || "$mode" == rom-marker || "$mode" == rom-latency ]]; then
+    args=(-DSPRINGBOARD_RX_FIRST=OFF -DSPRINGBOARD_LATENCY_DIAGNOSTICS=OFF -DSPRINGBOARD_ROM_SMOKE=OFF -DSPRINGBOARD_ROM_MANIFEST= -DSPRINGBOARD_DRIVE_MARKER=OFF)
+    if [[ "$mode" == rom-smoke || "$mode" == rom-marker || "$mode" == rom-latency || "$mode" == rom-fast ]]; then
       if [[ $# -ne 3 ]]; then
         echo "$mode requires absolute ROM and verifier manifest paths" >&2; exit 2
       fi
       dir="$root/build/rom-smoke"
-      args=(-DSPRINGBOARD_LATENCY_DIAGNOSTICS=OFF -DSPRINGBOARD_ROM_SMOKE=ON "-DSPRINGBOARD_ROM_MANIFEST=$3" -DSPRINGBOARD_DRIVE_MARKER=OFF)
+      args=(-DSPRINGBOARD_RX_FIRST=OFF -DSPRINGBOARD_LATENCY_DIAGNOSTICS=OFF -DSPRINGBOARD_ROM_SMOKE=ON "-DSPRINGBOARD_ROM_MANIFEST=$3" -DSPRINGBOARD_DRIVE_MARKER=OFF)
       if [[ "$mode" == rom-marker ]]; then
         dir="$root/build/rom-marker"
         args+=(-DSPRINGBOARD_DRIVE_MARKER=ON)
       fi
-      if [[ "$mode" == rom-latency ]]; then
-        dir="$root/build/rom-latency"
-        args=(-DSPRINGBOARD_LATENCY_DIAGNOSTICS=ON -DSPRINGBOARD_ROM_SMOKE=OFF
+      if [[ "$mode" == rom-latency || "$mode" == rom-fast ]]; then
+        dir="$root/build/$mode"
+        args=(-DSPRINGBOARD_RX_FIRST=OFF -DSPRINGBOARD_LATENCY_DIAGNOSTICS=ON -DSPRINGBOARD_ROM_SMOKE=OFF
               "-DSPRINGBOARD_ROM_MANIFEST=$3" -DSPRINGBOARD_DRIVE_MARKER=OFF)
+        if [[ "$mode" == rom-fast ]]; then args+=(-DSPRINGBOARD_RX_FIRST=ON); fi
       fi
     fi
     if [[ $# -gt 1 ]]; then args+=("-DSPRINGBOARD_ROM=$2");
@@ -48,5 +49,5 @@ case "$mode" in
       -DCMAKE_BUILD_TYPE=Release -DSPRINGBOARD_USB_DEBUG="$usb_debug" "${args[@]}"
     cmake --build "$dir" --parallel 4
     ;;
-  *) echo "Usage: $0 host | firmware [absolute-path-to-verified-ROM] | {rom-smoke|rom-marker|rom-latency} absolute-ROM absolute-manifest" >&2; exit 2 ;;
+  *) echo "Usage: $0 host | firmware [absolute-path-to-verified-ROM] | {rom-smoke|rom-marker|rom-latency|rom-fast} absolute-ROM absolute-manifest" >&2; exit 2 ;;
 esac

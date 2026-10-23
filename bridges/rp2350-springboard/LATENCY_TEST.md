@@ -117,3 +117,76 @@ writes the whole pad register, leaving data drive strength field0 (2mA), slow
 slew and Schmitt disabled; data mux then clears output-disable. GP39 retains its
 separate LED-pad setup. No stronger drive, pull resistor, synchronization bypass,
 clock change or Palm wait-state change is part of this experiment.
+
+## RX-first response implementation
+
+`./scripts/build.sh rom-fast /absolute/visorbus.rom /absolute/visorbus.json`
+builds a separate candidate at `build/rom-fast/springboard_rom_latency.{uf2,elf}`.
+`rom-latency` retains the original CPU engine; its archived binary remains the
+comparison baseline. The candidate announces `ENGINE=rx-first-v2 full_words=N` separately
+from its compatible diagnostic/ROM identity. Verify this line after flashing,
+before using the existing collector; that collector does not enforce the engine
+identity. No Palm reinstall or control/session rewrite is needed.
+
+The candidate separates CPU request wait, reply publication, and released-park
+accounting. The request loop reads RX status directly and checks the idle stop
+flag. It does not poll the completion IRQ before RX or reconstruct addresses,
+increment counters, or save traces in the response path. The small ARM routine
+prepares its saved registers/constants before waiting, then reads the request,
+samples the low address, checks high address bits, indexes the native SRAM table
+and publishes TX. Result stores follow publication. Completion accounting,
+sequential-address validation and traces happen at the released IRQ park.
+
+The PIO program and all response modes, pads, clock and bus wait settings remain
+unchanged. An accepted request always PUSHes before it can cancel/park. If CPU
+wakes after cancellation, RX and IRQ can both be pending: the CPU can publish a
+late word, but PIO remains Hi-Z and parked. That same CPU flushes FIFOs before
+acknowledging IRQ0, preventing the late word from reaching the next request.
+No early IRQ acknowledgement, output-enable bypass or rapid-cycle guarantee is
+introduced. Idle stop before consuming RX cannot enable CPU-mode outputs without
+a TX reply. Constant-mode stop retains its pad-OE inhibition path.
+
+Run `bash tests/test_cpu_reply_arm.sh` with `arm-none-eabi-gcc` and `qemu-arm`.
+It executes the actual assembled kernel against RAM register substitutes:
+100385 cases cover all32768 table indices, every upper address bit, all32
+RESET/control combinations, random snapshots and idle stop. This is functional
+instruction/ABI validation, not M33 or peripheral timing emulation. The existing
+PIO model includes1536 RX-first cancelled/late-publication cases in addition to
+9600 cancellation phases; short deselects remain a known failing qualification.
+
+The first physical candidate test should read the real ROM prefix with the
+existing ROM64 checker/collector and preserve the GPIO39/OE pair and scope
+selector. Require the engine/ROM identity and disarmed state first. Preserve
+actual trigger or no-trigger status; after no-trigger SINGLE, this scope may
+require cancelling the sweep toAUTO before STOP takes effect. Never download
+the old trace or force a trigger. A clean prefix is necessary before a wider ROM
+test and does not establish full-ROM, timing, release or boot qualification.
+
+PIO can generate constants and control the pins autonomously. It has shift/
+scratch registers and FIFOs, without an instruction to index the system SRAM
+ROM table. A CPU-free arbitrary-ROM path would additionally need DMA lookup and
+cross-window address/request/cancellation coordination; constants alone do not
+implement that mechanism. Reference: RP2350 datasheet §§11.1,11.2.2–11.2.4.
+
+### Full image after the prefix check
+
+Engine v1 was limited to `b`/64 reads. Engine v2 adds explicit `B`/full-image
+arming, permitted only with `cpu-rom` selected and a stopped/ready responder.
+Its banner advertises the exact image word count,3624 for the current7248-byte
+ROM. `b` and every response/PIO instruction remain unchanged; the ARM reply
+routine is unchanged. Budget extension does not qualify timing or ROM execution.
+
+Use the updated collector with an explicit opt-in:
+
+```sh
+python3 tools/prism_collect.py run /path/to/session --kind rom --latency-full-rom
+```
+
+This verifies the engine-v2 capability against the session ROM, selects CPU-ROM,
+sends `B`, and verifies the new run and exact armed budget before cueing **Run**,
+then **Read**. It rejects enginev1, short budgets and PIO/pattern modes without
+falling back to another arm method. The existing Palm Run reads the entire ROM
+with the established guarded, one-tick-spaced reader; no PRC or control change.
+The default collector command retains the legacy firmware identity and `b`
+method. Keep the explicit flag for this firmware; never send a full Palm Run
+to a64-word diagnostic arm. Retain pending/full-engine metadata through retries.

@@ -5,6 +5,7 @@ option(SPRINGBOARD_ROM_SMOKE "Build the manually armed eight-read CS0 experiment
 set(SPRINGBOARD_ROM_MANIFEST "" CACHE FILEPATH "Independent verifier manifest for active ROM")
 option(SPRINGBOARD_USB_DEBUG "Core-0-only USB CDC bring-up console" ON)
 option(SPRINGBOARD_LATENCY_DIAGNOSTICS "Build separate bounded latency/constant diagnostic" OFF)
+option(SPRINGBOARD_RX_FIRST "Use phased RX-first CPU service in the separate latency image" OFF)
 option(SPRINGBOARD_DRIVE_MARKER "Diagnostic GP39 side-set data-drive marker" OFF)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(DEPS "${CMAKE_CURRENT_LIST_DIR}/.deps")
@@ -103,6 +104,14 @@ else()
             message(FATAL_ERROR "Latency diagnostic requires USB for explicit mode selection and bounded arming")
         endif()
         add_executable(springboard_rom_latency src/latency_main.c src/latency_program.c)
+        target_compile_definitions(springboard_rom_latency PRIVATE
+            SB_LATENCY_RX_FIRST=$<BOOL:${SPRINGBOARD_RX_FIRST}>)
+        if(SPRINGBOARD_RX_FIRST)
+            target_sources(springboard_rom_latency PRIVATE src/cpu_reply.S)
+            # An explicit assembly input enables GNU-stack checking for old
+            # newlib objects too. The ELF requires no executable-stack request.
+            target_link_options(springboard_rom_latency PRIVATE -Wl,-z,noexecstack)
+        endif()
         add_dependencies(springboard_rom_latency validate_active_rom)
         list(APPEND FIRMWARE_TARGETS springboard_rom_latency)
     endif()

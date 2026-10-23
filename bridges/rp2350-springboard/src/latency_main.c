@@ -9,6 +9,12 @@
 #include "hardware/sync.h"
 #include "pico/multicore.h"
 #include "pico/stdlib.h"
+#ifndef SB_LATENCY_RX_FIRST
+#define SB_LATENCY_RX_FIRST 0
+#endif
+#if SB_LATENCY_RX_FIRST
+#include "cpu_reply.h"
+#endif
 #if SB_USB_DEBUG
 #include "pico/stdio_usb.h"
 #include <stdarg.h>
@@ -77,6 +83,48 @@ static void rom_core(void) {
         __dmb();
         arm = false;
         pio_sm_set_enabled(pio1, 0, true);
+#if SB_LATENCY_RX_FIRST
+        if (active_response <= SB_LAT_CPU_ONES) for (;;) {
+            /* One request per released IRQ park. An accepted request PUSHes
+             * before it can cancel/park, so RX alone is the wake-up source.
+             * Do not read the PIO IRQ register on every request-wait iteration.
+             * In particular, RX+IRQ together means a cancelled request, not a
+             * new cycle: a late TX stays parked until flushed below. */
+            struct sb_cpu_request request;
+            const struct sb_cpu_bus bus = {&pio1->ctrl, &sio_hw->gpio_in, &stop};
+            if (!sb_rx_first_reply(&request, rom_words, &bus)) goto service_finished;
+            const uint32_t high = request.high, low = request.low;
+            const uint16_t word = request.word;
+            const bool valid = request.valid;
+
+            /* Publication is complete. PIO alone qualifies, preloads, enables
+             * and releases the bus. No counter, address reconstruction or
+             * trace write is needed until its released park. */
+            while (!(pio1->irq & 1)) tight_loop_contents();
+            const bool did_enable = (pio1->irq & 2) != 0;
+            const uint32_t address = sb_address(low, high);
+            const uint32_t index = requested++;
+            if (valid) ++posted;
+            if (index < TRACE_LIMIT)
+                records[index] = (struct reply_record){address, high, word, valid};
+            if (did_enable) ++enabled; else ++not_enabled;
+            const bool wrong_address = address != completed * 2;
+            if (wrong_address) ++address_errors;
+            if (!did_enable || wrong_address) {
+                if (anomaly_count < TRACE_LIMIT)
+                    anomalies[anomaly_count] = (struct anomaly_record){
+                        completed, address, high, did_enable};
+                ++anomaly_count;
+            }
+            /* Same-core publisher, SM already Hi-Z. Flush even a late TX
+             * before acknowledging IRQ0; it cannot leak into a later read. */
+            pio_sm_clear_fifos(pio1, 0);
+            pio_interrupt_clear(pio1, 1);
+            ++completed;
+            if (stop || completed >= active_limit) break;
+            pio_interrupt_clear(pio1, 0);
+        }
+#else
         struct reply_record current = {0};
         bool have_current = false;
         if (active_response <= SB_LAT_CPU_ONES) for (;;) {
@@ -129,6 +177,7 @@ static void rom_core(void) {
                 if (requested == completed) break;
             }
         }
+#endif
         else for (;;) {
             if (pio1->irq & 1) {
                 /* PIO already released. Drain the snapshot here: CPU may
@@ -161,6 +210,9 @@ static void rom_core(void) {
                 break;
             }
         }
+#if SB_LATENCY_RX_FIRST
+service_finished:
+#endif
         pio_sm_set_enabled(pio1, 0, false);
         /* Abort may have disabled a driven SM, with all pad OEs forced low.
          * Clear its retained directions before a later mux/re-arm. */
@@ -211,6 +263,9 @@ static void console(uint64_t now) {
         if (marker_banner) {
             emit("LATENCY response=%s marker=%s words=%u\r\n",
                  response_names[selected_response], marker_names[selected_marker], SB_LAT_WORDS);
+#if SB_LATENCY_RX_FIRST
+            emit("ENGINE=rx-first-v2 full_words=%u\r\n", SB_ROM_IMAGE_SIZE / 2);
+#endif
             marker_banner = false;
             announce = now + 20000;
             return;
@@ -245,11 +300,26 @@ static void console(uint64_t now) {
              response_names[selected_response], marker_names[selected_marker], SB_LAT_WORDS);
         break;
     case 'h':
-        emit("R/Z/F=CPU ROM/zero/ones z/f=PIO zero/ones 0..3=marker b=64 reads\r\n"); break;
+        emit("R/Z/F=CPU ROM/zero/ones z/f=PIO zero/ones 0..3=marker b=64 reads\r\n");
+#if SB_LATENCY_RX_FIRST
+        emit("B=full ROM (cpu-rom only)\r\n");
+#endif
+        break;
     case 'b':
+#if SB_LATENCY_RX_FIRST
+    case 'B':
+        if (command == 'B' && selected_response != SB_LAT_CPU_ROM) {
+            emit("full ROM refused: require cpu-rom\r\n");
+            break;
+        }
+#endif
         if (rom_ready && ready && stopped && !arm) {
             dumping = dumping_anomalies = false;
+#if SB_LATENCY_RX_FIRST
+            arm_limit = command == 'B' ? SB_ROM_IMAGE_SIZE / 2 : SB_LAT_WORDS;
+#else
             arm_limit = SB_LAT_WORDS;
+#endif
             __dmb(); arm = true;
             emit("arm requested; s must show stopped=0 before app Read\r\n");
         } else emit("arm refused: require ROM ready, stopped=1, arm_pending=0\r\n");

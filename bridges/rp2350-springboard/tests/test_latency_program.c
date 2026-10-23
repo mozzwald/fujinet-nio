@@ -71,10 +71,41 @@ static void ack(epio_t *e) {
     while(epio_tx_fifo_depth(e,1,0))epio_pop_tx_fifo(e,1,0);
     epio_clear_block_irq(e,1,1);epio_clear_block_irq(e,1,0);
 }
+static void rx_first_cancelled_requests(void) {
+    /* The new CPU engine consumes RX before inspecting IRQ0. Prove the
+     * accepted request is still queued when cancellation parks the SM, and a
+     * subsequent late CPU publication cannot escape that park. The publisher
+     * must flush before ack; the next successful read must get its own word.
+     * Model timing is PIO clocks, not a CPU/peripheral latency prediction. */
+    const uint64_t invalid[]={IDLE,RESET|(UINT64_C(14)<<16),RESET|(UINT64_C(6)<<16),
+        RESET|(UINT64_C(2)<<16),RESET|(UINT64_C(8)<<16),UINT64_C(10)<<16};
+    for(unsigned marker=0;marker<4;++marker)
+    for(unsigned k=0;k<6;++k) for(unsigned delay=0;delay<64;++delay) {
+        epio_t *e=fresh(SB_LAT_CPU_ROM,marker);
+        bus(e,READ,0);
+        unsigned n=0;
+        while(!epio_rx_fifo_depth(e,1,0) && n++<40)step(e,1);
+        CHECK(n<40 && !driven(e));
+        step(e,delay);bus(e,invalid[k],40);
+        CHECK(epio_rx_fifo_depth(e,1,0)==1);
+        CHECK(epio_peek_block_irq_num(e,1,0) && !driven(e));
+        uint32_t snapshot=epio_pop_rx_fifo(e,1,0);
+        CHECK((snapshot&0x2000000fu)==0x2000000au);
+        epio_push_tx_fifo(e,1,0,0xdead);
+        bus(e,READ,100);
+        CHECK(!driven(e) && epio_tx_fifo_depth(e,1,0)==1);
+        ack(e);step(e,30);CHECK(!driven(e));
+        bus(e,IDLE,30);begin(e,SB_LAT_CPU_ROM,0xa55a);step(e,40);
+        CHECK(driven(e) && ((e->gpio.gpio_output_state&DATA)>>20)==0xa55a);
+        bus(e,IDLE,30);ack(e);epio_free(e);
+    }
+    puts("RX-first late publication:1536 cancelled requests flushed before ack; next word preserved.");
+}
 int main(void) {
     sb_rom_program_init(false);epio_t *base=epio_from_apio();
     for(unsigned i=0;i<32;++i)baseline[i]=epio_get_instr(base,1,i);
     epio_free(base);
+    rx_first_cancelled_requests();
     unsigned worst=0,known_short_gaps=0;
     const uint64_t invalid[]={IDLE,RESET|(UINT64_C(14)<<16),RESET|(UINT64_C(6)<<16),RESET|(UINT64_C(2)<<16),RESET|(UINT64_C(8)<<16),UINT64_C(10)<<16};
     for(unsigned mode=0;mode<5;++mode) for(unsigned marker=0;marker<4;++marker) {
