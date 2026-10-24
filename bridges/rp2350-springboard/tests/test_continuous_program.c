@@ -113,5 +113,26 @@ int main(void) {
     e=fresh();begin(e,0,0xffff,true);step(e,40);CHECK(driven(e));
     e->block[1].sm[3].pc=SB_CONT_CLAMP;step(e,1);CHECK(!driven(e));
     epio_push_tx_fifo(e,1,0,0xdead);step(e,1000);CHECK(!driven(e));epio_free(e);
+    /* Re-arm while the next read is already selected: the owner must capture
+     * a fresh snapshot, not consume the cancelled epoch's queued reply. */
+    for(unsigned phase=0;phase<40;++phase) {
+        e=fresh();begin(e,0xfffe,0x1234,true);step(e,phase);
+        bus(e,IDLE,20);CHECK(!driven(e));
+        epio_push_tx_fifo(e,1,0,0xdead);
+        bus(e,READ|0x0002,0);rearm(e);
+        unsigned wait=0;
+        while(!epio_rx_fifo_depth(e,1,0)&&wait++<40)step(e,1);
+        CHECK(wait<40 && !driven(e));
+        epio_pop_rx_fifo(e,1,0);epio_push_tx_fifo(e,1,0,0xbeef);step(e,40);
+        CHECK(driven(e)&&((e->gpio.gpio_output_state&DATA)>>20)==0xbeef);
+        bus(e,IDLE,20);CHECK(!driven(e));
+        /* Same address in a separate epoch is a legal new request. */
+        rearm(e);begin(e,2,0x0000,true);step(e,40);
+        CHECK(driven(e)&&!(e->gpio.gpio_output_state&DATA));
+        bus(e,READ&~RESET,30);CHECK(!driven(e));
+        epio_push_tx_fifo(e,1,0,0xffff);step(e,100);CHECK(!driven(e));
+        epio_free(e);
+    }
+    puts("Selected rearm/repeated address/reset: 40 phases PASS");
     puts("Continuous PIO model PASS; synchronizers/pad timing unmodeled");return 0;
 }
