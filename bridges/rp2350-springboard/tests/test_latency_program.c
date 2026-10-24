@@ -101,11 +101,56 @@ static void rx_first_cancelled_requests(void) {
     }
     puts("RX-first late publication:1536 cancelled requests flushed before ack; next word preserved.");
 }
+static void rapid_reselection_matrix(void) {
+    /* Characterize the installed CPU-ROM/drive program without changing it.
+     * A new address is selected immediately after each short inactive gap.
+     * No CPU ack is issued during the gap: stale output is an ownership risk,
+     * while a parked/released SM intentionally refuses the next bounded read.
+     * EPIO omits synchronizers/pad behavior; these are logical PIO clocks. */
+    const uint64_t deselect[]={IDLE,RESET|(UINT64_C(14)<<16)};
+    for(unsigned control=0;control<2;++control) {
+        unsigned first_all_safe=0;
+        for(unsigned width=1;width<=16;++width) {
+            unsigned stale=0,worst_release=0;
+            for(unsigned phase=0;phase<8;++phase) {
+                epio_t *e=fresh(SB_LAT_CPU_ROM,SB_LAT_DRIVE);
+                begin(e,SB_LAT_CPU_ROM,0xa55a);step(e,50+phase);CHECK(driven(e));
+                bus(e,deselect[control],width);
+                bus(e,READ|0x468a,24);
+                if(driven(e)) {
+                    ++stale;
+                    CHECK(((e->gpio.gpio_output_state&DATA)>>20)==0xa55a);
+                } else {
+                    CHECK(epio_peek_block_irq_num(e,1,0));
+                    epio_push_tx_fifo(e,1,0,0xdead);
+                    step(e,100);CHECK(!driven(e));
+                }
+                bus(e,IDLE,0);
+                unsigned n=0;
+                while(driven(e) && n<16) {step(e,1);++n;}
+                CHECK(!driven(e));if(n>worst_release)worst_release=n;
+                bus(e,IDLE,30);ack(e);
+                /* Flush/ack and a fresh deselection must recover the new word. */
+                step(e,30);bus(e,IDLE,30);begin(e,SB_LAT_CPU_ROM,0x5aa5);
+                step(e,40);CHECK(driven(e));
+                CHECK(((e->gpio.gpio_output_state&DATA)>>20)==0x5aa5);
+                bus(e,IDLE,30);ack(e);epio_free(e);
+            }
+            if(!stale && !first_all_safe)first_all_safe=width;
+            printf("Rapid reselect %s: gap=%u clocks stale=%u/8 sustained-release<=%u clocks\n",
+                   control?"OE":"CS0",width,stale,worst_release);
+            if(width==1)CHECK(stale);
+            if(width>=4)CHECK(!stale);
+        }
+        CHECK(first_all_safe==4);
+    }
+}
 int main(void) {
     sb_rom_program_init(false);epio_t *base=epio_from_apio();
     for(unsigned i=0;i<32;++i)baseline[i]=epio_get_instr(base,1,i);
     epio_free(base);
     rx_first_cancelled_requests();
+    rapid_reselection_matrix();
     unsigned worst=0,known_short_gaps=0;
     const uint64_t invalid[]={IDLE,RESET|(UINT64_C(14)<<16),RESET|(UINT64_C(6)<<16),RESET|(UINT64_C(2)<<16),RESET|(UINT64_C(8)<<16),UINT64_C(10)<<16};
     for(unsigned mode=0;mode<5;++mode) for(unsigned marker=0;marker<4;++marker) {
