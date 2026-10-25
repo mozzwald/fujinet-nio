@@ -1,6 +1,8 @@
 /* Experimental continuous owner. Boot disarmed; no automatic recognition. */
 #include "bus_model.h"
 #include "continuous_program.h"
+#include "continuous_console.h"
+#include "continuous_rearm.h"
 #include "cpu_reply.h"
 #include "rom_image.h"
 #include <apio.h>
@@ -49,6 +51,23 @@ static void epoch(void) {
     pio_sm_exec(pio1,3,APIO_JMP(SB_CONT_RESET));
     pio_enable_sm_mask_in_sync(pio1,15);
 }
+/* Normal completion only: no FIFO writes/flushes and no divider changes.
+ * Stop main and force release before freezing its live guards. Restart ALL
+ * waiting states before clearing IRQ0: another guard may still be about to
+ * publish the old ending. Clear only IRQ0/1, preserving concurrent host stop.
+ * CLKDIV=1 on every SM, so enabling together needs no divider restart. */
+static inline void fast_epoch(void) {
+    hw_clear_bits(&pio1->ctrl,1u);
+    pio_sm_exec(pio1,0,APIO_MOV_PINDIRS_NULL);
+    hw_clear_bits(&pio1->ctrl,15u);
+    pio_restart_sm_mask(pio1,15u);
+    pio1->irq=3u;
+    pio_sm_exec(pio1,0,APIO_JMP(SB_CONT_MAIN));
+    pio_sm_exec(pio1,1,APIO_JMP(SB_CONT_WATCH));
+    pio_sm_exec(pio1,2,APIO_JMP(SB_CONT_WATCH));
+    pio_sm_exec(pio1,3,APIO_JMP(SB_CONT_RESET));
+    hw_set_bits(&pio1->ctrl,15u);
+}
 static void service(void) {
     (void)save_and_disable_interrupts();
     ready=true;
@@ -82,6 +101,11 @@ static void service(void) {
             else ++empty_ends;
             if(irq&2)++attempted;else ++cancelled;
             ++completed;
+            if(!stop && (sio_hw->gpio_hi_in & (1u<<13)) &&
+               sb_cont_fast_rearm_allowed(have,have && request.valid,irq,pio1->fstat)) {
+                fast_epoch();
+                continue;
+            }
             /* This core has finished every possible publication. Drain old
              * replies before releasing any guard for the next epoch. */
             park();
@@ -103,17 +127,29 @@ int main(void) {
     rom_ready=sb_load_rom(bytes,sizeof(bytes),sb_rom_image,SB_ROM_IMAGE_SIZE,SB_ROM_IMAGE_CRC);
     multicore_launch_core1(service);stdio_usb_init();
     uint64_t next=0;
+    unsigned status_page=3;
+    struct sb_continuous_status snapshot={0};
     for(;;) {
         const uint64_t now=time_us_64();
         if(now<next){sleep_ms(1);continue;}
         next=now+10000; /* same10ms console cadence as bounded baseline */
+        if(status_page<3) {
+            char line[128];
+            int length=sb_continuous_status_line(line,sizeof(line),status_page++,&snapshot);
+            if(length>0 && (size_t)length<sizeof(line))fputs(line,stdout);
+            sleep_ms(1);continue;
+        }
         int c=getchar_timeout_us(0);
         if(c=='q') printf("CONTINUOUS version=1 response=%s marker=drive continuous=1 words=%u crc=%08lx clock_khz=%lu\r\n",
             mode==1?"cpu-zero":mode==2?"cpu-ones":"cpu-rom",SB_ROM_IMAGE_SIZE/2,
             (unsigned long)SB_ROM_IMAGE_CRC,(unsigned long)(clock_get_hz(clk_sys)/1000));
-        if(c=='s') printf("rom_ready=%u ready=%u stopped=%u arm_pending=%u active=%u run=%lu requests=%lu posted=%lu completed=%lu limit=0 attempted=%lu cancelled=%lu empty_ends=%lu continuous=1\r\n",
-            rom_ready,ready,stopped,arm,active,(unsigned long)runs,(unsigned long)requests,(unsigned long)posted,
-            (unsigned long)completed,(unsigned long)attempted,(unsigned long)cancelled,(unsigned long)empty_ends);
+        if(c=='s') {
+            snapshot=(struct sb_continuous_status){
+                .rom_ready=rom_ready,.ready=ready,.stopped=stopped,.arm_pending=arm,
+                .active=active,.run=runs,.requests=requests,.posted=posted,
+                .completed=completed,.attempted=attempted,.cancelled=cancelled,.empty_ends=empty_ends};
+            status_page=0;
+        }
         if(c=='R'||c=='Z'||c=='F') {
             if(stopped&&!arm)mode=c=='Z'?1:c=='F'?2:0;
             else puts("config refused: require stopped");

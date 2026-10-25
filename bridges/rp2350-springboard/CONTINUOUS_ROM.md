@@ -18,10 +18,22 @@ requalifies controls/RESET, then commands direction enable. CS0/OE/RESET guard
 SM1/2/3 independently latch endings and repeatedly clamp all data directions;
 the highest-numbered SM wins simultaneous PIO direction writes. Optional guard
 side-set clears GP39 when clamping, without changing the marker during WAITs.
-After an ending, the owner stops main first, forces its direction low, disables
-all SMs, flushes/restarts every FIFO/SM, clears IRQs and starts a fresh epoch.
-Queued responses cannot survive this reset. It may capture a currently selected
-next read as a new request; missed cycles during finite rearm time are possible.
+After an ending, the owner stops main first and forces its direction low.
+Normal completions with a valid CPU reply, enable IRQ1, no stop IRQ7, released
+RESET and all eight FIFOs empty use a shorter restart. It freezes all SMs,
+restarts their internal waiting/shift states in one mask write, clears only
+IRQ0/1, resets all four PCs, and enables all SMs together. X/Y, OSR, FIFO contents
+and clock dividers are retained; all dividers are1. Freezing and restarting ALL
+guards before clearing IRQ0 prevents a delayed old guard from ending a new
+epoch. IRQ7 and the persistent pad stop override survive this sequence.
+Any cancellation or leftover FIFO word retains the full flush/restart cleanup.
+No old reply is accepted into a new epoch. A currently selected next read may
+be captured fresh; complete cycles during finite rearm time can still be missed.
+This legacy short path was tested after October24 recognition captures. It
+still lost second requests during paired reads and is retained for comparison.
+The separate [PIO-owned rearm candidate](PIO_REARM.md) accepts those requests
+but still cancels second responses at MOVE.L spacing. Neither path is qualified
+for recognition or ROM execution.
 
 The unchanged ARM RX-first kernel waits on an IRQ-register byte instead of the
 old SRAM stop byte. IRQ0 cancellation wakes an empty RX wait; IRQ7 wakes host
@@ -47,9 +59,20 @@ read timing. No per-transaction hot-path trace or USB operation is introduced.
 Native tests cover512 rapid reselection phases,640 short-gap preload/enable
 phases,480 sustained-invalid-control cancellation cases,40 selected-rearm/
 repeated-address/reset phases, late FIFO replies, stalls and stop clamping.
+An additional320 empty-FIFO restart phases vary reselection/reset during the
+ordered owner operations; dirty words in each RX/TX FIFO require full cleanup,
+and IRQ7 survives arrival at each of the10 restart stages. The restart model
+retains X/Y/OSR/FIFOs per SDK semantics and resets waiting/shift state. Its
+spacing between MMIO operations is illustrative, not a measured host latency.
 The emulator models instruction/pin direction arbitration, not pads, input
 synchronizers, SRAM/bus contention or owner restart time. CS0/OE endings that are
 visible for a PIO clock are latched; finite release latency remains. WE/CS1 are
 requalified/polled, not separate every-clock sticky guards. No claim of universal
 asynchronous glitch rejection, electrical Hi-Z, numerical setup/hold margin,
 physical reset/stop qualification or recognition follows from these tests.
+
+Console status uses three bounded lines on separate10ms core0 ticks so the
+nonblocking USB transmit buffer can drain. The collector assembles all fields
+within its existing response window. Pages are captured from one query snapshot;
+that still does not make active cross-core counters atomic. No response-core or
+PIO instruction change is needed for this framing correction.

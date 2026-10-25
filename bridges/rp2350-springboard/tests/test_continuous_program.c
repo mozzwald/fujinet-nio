@@ -1,4 +1,5 @@
 #include "continuous_program.h"
+#include "continuous_rearm.h"
 #include <apio.h>
 #include <epio_priv.h>
 #include <stdio.h>
@@ -60,6 +61,46 @@ static void rearm(epio_t *e) {
     }
     e->block[1].sm[0].y=10;
     memset(&e->block[1].irq,0,sizeof(e->block[1].irq));
+}
+static uint32_t fstat(epio_t *e) {
+    uint32_t result=0;
+    for(unsigned sm=0;sm<4;++sm) {
+        if(!epio_rx_fifo_depth(e,1,sm))result|=1u<<(8+sm);
+        if(!epio_tx_fifo_depth(e,1,sm))result|=1u<<(24+sm);
+    }
+    return result;
+}
+/* Model the SDK-documented restart subset, retaining FIFOs, X/Y and OSR.
+ * Each MMIO operation is separated by PIO steps. Vary when the next read
+ * starts; this tests ownership through the sequence, not physical MMIO time. */
+static void fast_rearm(epio_t *e,unsigned select_stage,uint64_t next,unsigned stop_stage) {
+    CHECK(sb_cont_fast_rearm_allowed(true,true,epio_peek_block_irq(e,1),fstat(e)));
+    for(unsigned stage=0;stage<10;++stage) {
+        if(stage==select_stage)bus(e,next,0);
+        if(stage==stop_stage)epio_set_block_irq(e,1,7);
+        switch(stage) {
+        case 0: epio_disable_sm(e,1,0);break;
+        case 1:
+            e->gpio.gpio_direction&=~DATA;
+            e->gpio.gpio_output_state&=~MARKER;
+            break;
+        case 2: for(unsigned sm=0;sm<4;++sm)epio_disable_sm(e,1,sm);break;
+        case 3:
+            for(unsigned sm=0;sm<4;++sm) {
+                epio_sm_state_t *s=&e->block[1].sm[sm];
+                s->isr=s->isr_count=s->osr_count=s->delay=s->stalled=s->exec_pending=0;
+            }
+            break;
+        case 4: epio_clear_block_irq(e,1,0);epio_clear_block_irq(e,1,1);break;
+        case 5: e->block[1].sm[0].pc=SB_CONT_MAIN;break;
+        case 6: e->block[1].sm[1].pc=SB_CONT_WATCH;break;
+        case 7: e->block[1].sm[2].pc=SB_CONT_WATCH;break;
+        case 8: e->block[1].sm[3].pc=SB_CONT_RESET;break;
+        case 9: for(unsigned sm=0;sm<4;++sm)epio_enable_sm(e,1,sm);break;
+        }
+        step(e,2);
+    }
+    CHECK(!driven(e));
 }
 int main(void) {
     unsigned cases=0;
@@ -134,5 +175,50 @@ int main(void) {
         epio_free(e);
     }
     puts("Selected rearm/repeated address/reset: 40 phases PASS");
+    /* Missing/invalid replies, cancellations and stop cannot take the short
+     * path. A queued word in ANY FIFO must survive rejection for full drain. */
+    CHECK(!sb_cont_fast_rearm_allowed(false,true,3,SB_CONT_ALL_FIFOS_EMPTY));
+    CHECK(!sb_cont_fast_rearm_allowed(true,false,3,SB_CONT_ALL_FIFOS_EMPTY));
+    CHECK(!sb_cont_fast_rearm_allowed(true,true,1,SB_CONT_ALL_FIFOS_EMPTY));
+    CHECK(!sb_cont_fast_rearm_allowed(true,true,0x83,SB_CONT_ALL_FIFOS_EMPTY));
+    for(unsigned sm=0;sm<4;++sm)for(unsigned tx=0;tx<2;++tx) {
+        e=fresh();begin(e,8,0xfeed,true);step(e,40);bus(e,IDLE,20);
+        if(tx)epio_push_tx_fifo(e,1,sm,0xdead);
+        else e->block[1].sm[sm].fifo.rx_fifo_count=1;
+        CHECK(!sb_cont_fast_rearm_allowed(true,true,epio_peek_block_irq(e,1),fstat(e)));
+        rearm(e);begin(e,10,0xbeef,true);step(e,40);
+        CHECK(driven(e)&&((e->gpio.gpio_output_state&DATA)>>20)==0xbeef);
+        epio_free(e);
+    }
+    cases=0;
+    for(unsigned stage=0;stage<10;++stage)for(unsigned end_delay=2;end_delay<18;++end_delay)
+    for(unsigned reset=0;reset<2;++reset) {
+        e=fresh();begin(e,8,0xfeed,true);step(e,40);CHECK(driven(e));
+        bus(e,IDLE,end_delay);
+        if(!epio_peek_block_irq_num(e,1,0)){epio_free(e);continue;}
+        fast_rearm(e,stage,(READ|10)&(reset?~RESET:UINT64_MAX),10);
+        if(reset) {
+            step(e,100);CHECK(!driven(e));
+        } else {
+            unsigned wait=0;
+            while(!epio_rx_fifo_depth(e,1,0)&&wait++<40)step(e,1);
+            CHECK(wait<40 && !driven(e));
+            CHECK((epio_pop_rx_fifo(e,1,0)&15)==10);
+            epio_push_tx_fifo(e,1,0,0xbeef);step(e,40);
+            CHECK(driven(e)&&((e->gpio.gpio_output_state&DATA)>>20)==0xbeef);
+            bus(e,IDLE,20);CHECK(!driven(e));
+        }
+        epio_free(e);++cases;
+    }
+    printf("Empty-FIFO restart: %u reselection/reset phases; dirty FIFO fallback PASS\n",cases);
+    for(unsigned stage=0;stage<10;++stage) {
+        e=fresh();begin(e,8,0xfeed,true);step(e,40);bus(e,IDLE,20);
+        fast_rearm(e,0,READ|10,stage);
+        CHECK(epio_peek_block_irq_num(e,1,7));
+        /* Core0's persistent physical OE override is outside this model.
+         * Here verify only that rearm cannot erase its wakeup/stop latch. */
+        epio_free(e);
+    }
+    puts("Host-stop IRQ preserved at all 10 restart stages PASS");
     puts("Continuous PIO model PASS; synchronizers/pad timing unmodeled");return 0;
 }
