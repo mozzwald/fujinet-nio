@@ -161,3 +161,7 @@ The [separate preload marker](REPLY_MARKER.md) is built, not flashed. It can
 help distinguish response arrival from subsequent qualification on a repeated
 failing control. At the user checkpoint the responder is stopped and no next
 read is armed; recognition and full-ROM escalation remain blocked.
+
+The separately built [persistent Core1 experiment](PERSISTENT_REPLY.md) retains
+this PIO program and changes CPU turnaround only. It uses version3/preload
+identity and requires explicit collector engine selection.

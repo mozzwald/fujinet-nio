@@ -3,6 +3,9 @@
 #include "pio_rearm_program.h"
 #include "continuous_console.h"
 #include "cpu_reply.h"
+#if SB_PERSISTENT_REPLY
+#include "persistent_reply.h"
+#endif
 #include "rom_image.h"
 #include <apio.h>
 #include "hardware/clocks.h"
@@ -52,7 +55,9 @@ static void start(void) {
 static void service(void) {
     (void)save_and_disable_interrupts();
     const struct sb_cpu_bus bus={&pio1->ctrl,&sio_hw->gpio_in,&stop};
+#if !SB_PERSISTENT_REPLY
     struct sb_cpu_request request;
+#endif
     ready=true;
     for(;;) {
         while(!arm)tight_loop_contents();
@@ -65,6 +70,13 @@ static void service(void) {
         while(!stop && ((sio_hw->gpio_in & ((1u<<16)|(1u<<18))) != ((1u<<16)|(1u<<18)) ||
                        !(sio_hw->gpio_hi_in & (1u<<13))))tight_loop_contents();
         if(!stop){start();__dmb();active=true;}
+#if SB_PERSISTENT_REPLY
+        struct sb_persistent_totals totals={0};
+        if(!stop)sb_persistent_reply(&totals,words,&bus);
+        if(totals.fault){owner_fault=true;ready=false;}
+        requests=totals.requests;posted=totals.posted;completed=totals.completed;
+        attempted=totals.attempted;cancelled=totals.cancelled;
+#else
         uint32_t nr=0,np=0,nc=0,ne=0,nd=0;
         while(!stop) {
             /* Unchanged ARM instructions. SRAM stop byte is not the PIO
@@ -91,6 +103,7 @@ static void service(void) {
         /* Publish exact totals only on stop. Keeping diagnostics local avoids
          * shared-SRAM read/modify/write traffic between paired replies. */
         requests=nr;posted=np;completed=nc;attempted=ne;cancelled=nd;
+#endif
         park();active=false;__dmb();stopped=true;
     }
 }
@@ -118,7 +131,12 @@ int main(void) {
         }
         if(owner_fault&&!fault_reported){puts("owner completion framing fault; reboot required");fault_reported=true;}
         int c=getchar_timeout_us(0);
-        if(c=='q') printf("CONTINUOUS version=2 response=%s marker="
+        if(c=='q') printf(
+#if SB_PERSISTENT_REPLY
+            "CONTINUOUS version=3 response=%s marker="
+#else
+            "CONTINUOUS version=2 response=%s marker="
+#endif
 #if SB_PIO_REPLY_MARKER
             "preload"
 #else
