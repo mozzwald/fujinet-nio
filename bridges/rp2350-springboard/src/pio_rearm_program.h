@@ -5,7 +5,7 @@
 #endif
 enum { SB_PR_MAIN=0, SB_PR_SNAPSHOT=4, SB_PR_REQUEST=5,
        SB_PR_PULL=6, SB_PR_ENABLE=13, SB_PR_END=19, SB_PR_COMPLETE=21,
-       SB_PR_WATCH=23, SB_PR_RESET=30, SB_PR_INSTRUCTIONS=32 };
+       SB_PR_WATCH=23, SB_PR_RESET=27, SB_PR_INSTRUCTIONS=29 };
 /* RX0 strictly alternates address snapshot / completion token. TX0 has one
  * reply per address, including a cancelled dummy for an invalid snapshot.
  * No runtime SM restart or FIFO flush between transactions. */

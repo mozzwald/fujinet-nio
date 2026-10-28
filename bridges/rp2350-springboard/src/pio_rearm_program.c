@@ -32,19 +32,16 @@ void sb_pio_rearm_program_init(bool enable) {
         APIO_MOV_ISR_X,
         APIO_PUSH_BLOCK,                      /*21: completion0/dropped, ~0/enabled */
         APIO_JMP(0),                          /*22: WAIT1IRQ already acknowledged */
-        APIO_WAIT_GPIO_LOW(0),                /*23: CS0-qualified CS0/OE watchers */
-        APIO_WAIT_PIN_LOW(0),
-        APIO_WAIT_PIN_HIGH(0),
-        APIO_IRQ_SET(0),                      /*26: sticky cancellation */
-        APIO_MOV_PINDIRS_NULL|0x1000u,         /*27: immediate independent clamp */
-        APIO_WAIT_IRQ_LOW(0),
-        APIO_MOV_Y_Y,                         /*29: per-SM wrap to watch/reset */
-        APIO_WAIT_PIN_LOW(0),                 /*30: RESET watcher */
-        APIO_JMP(26),
+        APIO_WAIT_PIN_HIGH(0),                /*23: CS0/OE end; initially idle-high is safe */
+        APIO_IRQ_SET(0),                      /*24: sticky cancellation */
+        APIO_MOV_PINDIRS_NULL|0x1000u,         /*25: same-block independent clamp */
+        APIO_WAIT_PIN_LOW(0),                 /*26: arm next falling edge, then wrap23 */
+        APIO_WAIT_PIN_LOW(0),                 /*27: RESET assertion */
+        APIO_JMP(24),                         /*28: share IRQ/clamp; SM3 wraps at25 */
     };
-    _Static_assert(sizeof(program)/sizeof(program[0])==32,"PIO layout");
+    _Static_assert(sizeof(program)/sizeof(program[0])==SB_PR_INSTRUCTIONS,"PIO layout");
     APIO_WRAP_BOTTOM();
-    for(unsigned i=0;i<32;++i) {
+    for(unsigned i=0;i<SB_PR_INSTRUCTIONS;++i) {
         if(i==22)APIO_WRAP_TOP();
         APIO_ADD_INSTR(program[i]);
     }
@@ -58,11 +55,17 @@ void sb_pio_rearm_program_init(bool enable) {
     APIO_SM_EXEC_INSTR(APIO_SET_PINS(0));
     APIO_SM_EXEC_INSTR(APIO_SET_PIN_DIRS(1));
     APIO_SM_JMP_TO_START();
+    /* Edge guards keep their original PIO1 pad ownership and IRQ0. An idle
+     * high CS0/OE initially cancels/clamps, then waits for low before watching
+     * high again. The owner still clears IRQ0 with its original five delays;
+     * no guard can reassert from the old high level after observing the low.
+     * RESET wraps immediately after the clamp, reasserting while held low.
+     * No guard consumes IRQ0: WAIT1IRQ in SM0 remains its sole consumer. */
     for(unsigned sm=1;sm<4;++sm) {
-        APIO_SET_BLOCK_FROM_VAR(1,sm==3?30:23);APIO_SET_SM_VAR(sm);
-        APIO_SET_BLOCK_FROM_VAR(1,sm==3?30:23);APIO_WRAP_BOTTOM();
-        APIO_SET_BLOCK_FROM_VAR(1,29);APIO_WRAP_TOP();
-        APIO_SET_BLOCK_FROM_VAR(1,sm==3?31:29);
+        APIO_SET_BLOCK_FROM_VAR(1,sm==3?SB_PR_RESET:SB_PR_WATCH);APIO_SET_SM_VAR(sm);
+        APIO_SET_BLOCK_FROM_VAR(1,sm==3?SB_PR_RESET:SB_PR_WATCH);APIO_WRAP_BOTTOM();
+        APIO_SET_BLOCK_FROM_VAR(1,sm==3?25:26);APIO_WRAP_TOP();
+        APIO_SET_BLOCK_FROM_VAR(1,sm==3?28:26);
         APIO_END(); /* program already loaded by SM0 */
         APIO_SM_CLKDIV_SET(1,0);
         APIO_SM_EXECCTRL_SET(1u<<30);
@@ -71,7 +74,7 @@ void sb_pio_rearm_program_init(bool enable) {
             APIO_OUT_BASE(4)|APIO_OUT_COUNT(16)|APIO_SIDE_SET_BASE(23)|APIO_SIDE_SET_COUNT(2));
         APIO_SM_JMP_TO_START();
     }
-    APIO_SET_BLOCK_FROM_VAR(1,32);APIO_END_BLOCK();
+    APIO_SET_BLOCK_FROM_VAR(1,SB_PR_INSTRUCTIONS);APIO_END_BLOCK();
     /* The main no longer polls all controls while driving. Preserve WE/CS1
      * cancellation with input-only PIO0 watchers; pads remain assigned PIO1.
      * NEXT IRQ0 reaches PIO1 without CPU/MMIO traffic. */
