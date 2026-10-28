@@ -375,7 +375,7 @@ Disassembly of section .text:
  408:	0c81 feff ffff 	cmpil #-16777217,%d1
  40e:	6216           	bhis 426 <prepare+0xfc>
  410:	0caa 0000 014a 	cmpil #330,%a2@(40)
- 416:	0028 
+ 416:	0028
  418:	660c           	bnes 426 <prepare+0xfc>
  41a:	d081           	addl %d1,%d0
  41c:	2540 0024      	movel %d0,%a2@(36)
@@ -683,10 +683,10 @@ Disassembly of section .text:
  75c:	4a40           	tstw %d0
  75e:	662e           	bnes 78e <save+0xb4>
  760:	0cae 4441 5441 	cmpil #1145132097,%fp@(-8)
- 766:	fff8 
+ 766:	fff8
  768:	6624           	bnes 78e <save+0xb4>
  76a:	0cae 464e 4652 	cmpil #1179534930,%fp@(-4)
- 770:	fffc 
+ 770:	fffc
  772:	661a           	bnes 78e <save+0xb4>
  774:	082e 0000 fff7 	btst #0,%fp@(-9)
  77a:	6612           	bnes 78e <save+0xb4>
@@ -913,7 +913,7 @@ Disassembly of section .text:
  9ba:	6b65           	bmis a21 <PilotMain+0x45>
  9bc:	6570           	bcss a2e <PilotMain+0x52>
  9be:	2072 6573 756c 	moveal %a2@(756c7400)@(50415353),%a0
- 9c4:	7400 5041 5353 
+ 9c4:	7400 5041 5353
  9ca:	3a20           	movew %a0@-,%d5
  9cc:	7265           	moveq #101,%d1
  9ce:	6164           	bsrs a34 <PilotMain+0x58>
