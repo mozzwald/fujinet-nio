@@ -1,0 +1,15 @@
+{
+  "plain": {
+    "return_value": 5,
+    "output": "hello"
+  },
+  "mmio-only": {
+    "return_value": 5,
+    "output": "hello"
+  },
+  "global-rejected": {
+    "return_value": 536901809,
+    "output": "hello"
+  },
+  "global_backend_defect_reproduced": true
+}

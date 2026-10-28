@@ -1,0 +1,585 @@
+{
+  "result": "PASS",
+  "cases": 64,
+  "maximum_modeled_enable_delta_clocks": 0,
+  "kernel": "same compiled read instructions",
+  "scope": "matched uncalibrated instruction-cost profiles, PIO captures enabled; not physical SRAM/bus timing",
+  "rows": [
+    {
+      "profile": 1,
+      "phase": 0,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 0,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 0,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 0,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 1,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 1,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 1,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 1,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 2,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 2,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 2,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 2,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 3,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 3,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 3,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 3,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 4,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 4,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 4,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 4,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 5,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 5,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 5,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 5,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 6,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 6,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 6,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 6,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 7,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 7,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 7,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 1,
+      "phase": 7,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 0,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 0,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 0,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 0,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 1,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 1,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 1,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 1,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 2,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 2,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 2,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 2,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 3,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 3,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 3,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 3,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 4,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 4,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 4,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 4,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 5,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 5,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 5,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 5,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 6,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 6,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 6,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 6,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 7,
+      "regions": [
+        10,
+        10
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 7,
+      "regions": [
+        9,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 7,
+      "regions": [
+        10,
+        9
+      ],
+      "event_scheduling_identical": true
+    },
+    {
+      "profile": 2,
+      "phase": 7,
+      "regions": [
+        9,
+        10
+      ],
+      "event_scheduling_identical": true
+    }
+  ]
+}

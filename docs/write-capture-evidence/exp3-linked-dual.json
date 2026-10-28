@@ -1,0 +1,7 @@
+{
+  "result": "PASS",
+  "cases": 320,
+  "scope": "actual compiled ARM + strict persistent PIO model; synthetic instruction costs, no hardware timing claim",
+  "full_trace_sha256": "976d0d812fcf8031c7b8a70c62a21e3192762b739457268ccf02182922a3e3e9",
+  "full_trace_location": "/home/mozzwald/nio/dual-cs-write-capture/bridges/rp2350-springboard/build/evidence/exp3-linked-dual-final/results.json"
+}

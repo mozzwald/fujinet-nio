@@ -1,0 +1,25 @@
+{
+  "result": "PASS",
+  "elf_sha256": "db210d1018812dea080ac798542bd9417a08ee293fc807b6c48f88ed4cdd9b2b",
+  "cases": [
+    "GET_MAX_LUN-stack-request",
+    "runtime-vector-repair",
+    "capacity",
+    "write-read",
+    "persistent-rescan",
+    "LBA-offset-bounds",
+    "private-write-rejection-live",
+    "flush",
+    "eject-load",
+    "detach-no-activation",
+    "fault-pad-clamp-park"
+  ],
+  "flash_operations": [
+    "erase",
+    "program",
+    "program",
+    "program"
+  ],
+  "live_rom_table_unchanged": true,
+  "scope": "Actual linked ARM callbacks with mapped MMIO; NOR and endpoint0 transmission mocked; no USB wire or dual-core physical timing proof"
+}

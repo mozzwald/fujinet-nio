@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "clock_khz": 150000,
+  "access_ns_unchanged": 330,
+  "static_bss_end": "0x20040c50",
+  "words_address": "0x2000d0c8",
+  "words_bytes": 65536,
+  "words_alignment_mod16": 8,
+  "kernel_address": "0x20002e18",
+  "flash_end": "0x1000d1cc",
+  "no_hardware_actions": true
+}

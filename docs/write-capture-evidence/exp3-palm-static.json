@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "name": "CS1 Write E3",
+  "creator": "FNFW",
+  "type": "appl",
+  "attributes": 1,
+  "bytes": 3706,
+  "prc_sha256": "e0af12537bf0b347ee616ebdb0a7593ad6effd1020aa5a97aa45aa899fa9982b",
+  "code1_sha256": "aba6e8768598023a7102e733127a57f929cf02030a31d9ca88530438c930da58",
+  "explicit_move_w_write": true,
+  "pc_relative_ram_probe": true,
+  "no_reset_attribute": true,
+  "hardware_tested": false
+}

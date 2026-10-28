@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "cases": 359,
+  "scope": "actual linked ARM instructions + candidate shared PIO; synthetic timing profiles, two-stage input sampling; not cycle-accurate M33",
+  "profiles": {
+    "1": "one slot/instruction plus multiword saves and skipped IT slots",
+    "2": "profile1 plus one slot per memory/branch instruction",
+    "3": "profile1 plus two slots per memory/branch instruction"
+  },
+  "full_trace_sha256": "a1cd6989f1fa821bf95a522072b256a9be7df892ca97bcd388ed1ec1fb1e956c",
+  "full_trace_location": "/home/mozzwald/nio/dual-cs-write-capture/bridges/rp2350-springboard/build/evidence/exp3-linked-cs0.json"
+}

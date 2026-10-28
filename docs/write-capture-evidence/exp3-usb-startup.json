@@ -1,0 +1,16 @@
+{
+  "asserted": false,
+  "calls": [
+    {
+      "function": "irq_add_shared_handler",
+      "irq": 14,
+      "handler": "0x2000a421",
+      "primask": 1
+    }
+  ],
+  "instructions": 4468,
+  "usb_pullup_enabled": true,
+  "elf_sha256": "db210d1018812dea080ac798542bd9417a08ee293fc807b6c48f88ed4cdd9b2b",
+  "result": "PASS",
+  "scope": "Actual SDK IRQ registration and TinyUSB initialization with mapped MMIO; not physical USB enumeration"
+}
