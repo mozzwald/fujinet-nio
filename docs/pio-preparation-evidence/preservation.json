@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "original_branch": "visor",
+  "original_head": "c41ec8c251edce6d4e1ce028c948404f88597d3c",
+  "status_unchanged": true,
+  "checked_files": 1090,
+  "original_status": " M bridges/rp2350-springboard/CMakeLists.txt\n M bridges/rp2350-springboard/README.md\n M bridges/rp2350-springboard/scripts/build-rom-msc.sh\n M bridges/rp2350-springboard/scripts/test-persistent-reply.py\n M bridges/rp2350-springboard/src/async_program.c\n?? bridges/rp2350-springboard/CS1_MSC.md\n?? bridges/rp2350-springboard/experiments/\n?? bridges/rp2350-springboard/rom-management/\n?? bridges/rp2350-springboard/scripts/build-cs1-msc.sh\n?? bridges/rp2350-springboard/scripts/build-rom-usb.sh\n?? bridges/rp2350-springboard/scripts/cs1_msc.py\n?? bridges/rp2350-springboard/scripts/rom_usb.py\n?? bridges/rp2350-springboard/scripts/test-cs0-idle-isolation.py\n?? bridges/rp2350-springboard/scripts/test-cs0-passive-initializer.py\n?? bridges/rp2350-springboard/scripts/test-cs1-fault-polling.py\n?? bridges/rp2350-springboard/scripts/test-cs1-msc-control.py\n?? bridges/rp2350-springboard/scripts/test-cs1-msc-scheduling.py\n?? bridges/rp2350-springboard/scripts/test-cs1-msc-tool.py\n?? bridges/rp2350-springboard/scripts/test-cs1-pio-init.py\n?? bridges/rp2350-springboard/scripts/test-rom-usb-layout.py\n?? bridges/rp2350-springboard/scripts/test-rom-usb.py\n?? bridges/rp2350-springboard/scripts/verify-cs1-msc.py\n?? bridges/rp2350-springboard/scripts/verify-rom-usb.py\n?? bridges/rp2350-springboard/src/async_msc_descriptors.c\n?? bridges/rp2350-springboard/src/async_msc_main.c\n?? bridges/rp2350-springboard/src/rom_usb_main.c\n?? bridges/rp2350-springboard/tests/cs0_idle_cosim.c\n?? bridges/rp2350-springboard/tests/cs1_passive_probe.c\n?? bridges/rp2350-springboard/tests/rom_usb_fixture.c\n",
+  "previous_experiment_head": "f1cfab8676c978cc2e76b83645c44d8a2187c3d9",
+  "previous_experiment_clean": true,
+  "full_before_snapshot": "/home/mozzwald/nio/investigation-records/pio-dual-cs-preparation-20261027/original-before.json"
+}

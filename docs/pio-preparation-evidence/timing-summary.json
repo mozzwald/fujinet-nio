@@ -1,0 +1,65 @@
+{
+  "result": "PASS",
+  "paired_comparisons": 48,
+  "safety_runs": 78,
+  "backend": "ordinary mapped registers",
+  "rows": [
+    {
+      "profile": 1,
+      "baseline_equals_candidate": true,
+      "select_request": [
+        12,
+        14
+      ],
+      "request_tx": [
+        14,
+        20
+      ],
+      "tx_preload": [
+        1,
+        1
+      ],
+      "preload_enable": [
+        5,
+        5
+      ],
+      "end_release": [
+        5,
+        5
+      ],
+      "end_next_request": [
+        19,
+        22
+      ]
+    },
+    {
+      "profile": 2,
+      "baseline_equals_candidate": true,
+      "select_request": [
+        12,
+        14
+      ],
+      "request_tx": [
+        21,
+        38
+      ],
+      "tx_preload": [
+        1,
+        1
+      ],
+      "preload_enable": [
+        5,
+        5
+      ],
+      "end_release": [
+        5,
+        5
+      ],
+      "end_next_request": [
+        19,
+        22
+      ]
+    }
+  ],
+  "scope": "unchanged harness; synthetic ARM costs and two-stage sampled PIO inputs; not physical timing"
+}

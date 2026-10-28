@@ -1,0 +1,7 @@
+{
+  "result": "PASS",
+  "baseline_cases": 359,
+  "candidate_cases": 359,
+  "backend": "ordinary mapped registers",
+  "assertions": "unchanged original suite"
+}

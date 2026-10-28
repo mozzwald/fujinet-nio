@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "cases": 359,
+  "scope": "actual linked ARM instructions + unchanged PIO; synthetic timing profiles, two-stage input sampling; not cycle-accurate M33",
+  "profiles": {
+    "1": "one slot/instruction plus multiword saves and skipped IT slots",
+    "2": "profile1 plus one slot per memory/branch instruction",
+    "3": "profile1 plus two slots per memory/branch instruction"
+  }
+}
