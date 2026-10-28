@@ -18,6 +18,7 @@ def run(elf,rom,*,valid=True,low=0x50000,high=0x2000,release=False,stop_wait=Fal
  for addr,size in [(0x20000000,0x100000),(0xd0000000,0x1000),(0x40000000,0x2000000),(0x50000000,0x400000)]:u.mem_map(addr,size)
  for addr,data in seg:u.mem_write(addr,data)
  u.mem_write(syms['bytes'],rom+bytes([255])*(65536-len(rom)))
+ if 'image_length' in syms:u.mem_write(syms['image_length'],struct.pack('<I',len(rom)))
  u.mem_write(syms['rom_ready'],bytes([valid]));u.mem_write(0xd0000004,struct.pack('<II',low,high))
  u.reg_write(UC_ARM_REG_SP,0x200ff000);u.reg_write(UC_ARM_REG_LR,0x200fe001)
  state=dict(pio_init=0,lookup=0,kernel=0,instructions=0,wait_instructions=0,released=False)
@@ -25,6 +26,7 @@ def run(elf,rom,*,valid=True,low=0x50000,high=0x2000,release=False,stop_wait=Fal
  def hook(u,addr,size,_):
   state['instructions']+=1
   if addr==(syms['sb_rom_word']&~1):
+   assert u.reg_read(UC_ARM_REG_R0)==syms['bytes'] and u.reg_read(UC_ARM_REG_R1)==len(rom), 'ROM source/length not owned by this image'
    offset=u.reg_read(UC_ARM_REG_R2);value=int.from_bytes(rom[offset:offset+2],'big') if offset+2<=len(rom) else 0xffff
    u.reg_write(UC_ARM_REG_R0,value);u.reg_write(UC_ARM_REG_PC,u.reg_read(UC_ARM_REG_LR));state['lookup']+=1;return
   if addr==(syms['sb_pio_rearm_program_init']&~1):

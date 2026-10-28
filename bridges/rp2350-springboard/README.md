@@ -430,3 +430,12 @@ matched raw samples exactly at the calibrated sample offset. Preserve those
 mismatches; do not infer physical undershoot from cursor output alone. Raw CH1
 can cross-check CS0; bulk CH2 remains duplicated and cannot verify D8. Treat
 cursor-based response timing as approximate diagnostics, not electrical signoff.
+
+## Separate USB ROM drive candidate
+
+The [CDC + MSC ROM drive](msc-rom/README.md) permits copying `SPRINGBD.ROM` while
+ROM service continues from SRAM, with validated import only on controlled RP2350
+startup. It preserves the proven ROM-only engine; CS1 qualification is separate.
+No build/script automatically flashes or resets hardware.
+
+The frozen ROM-drive source and build identity are recorded in [msc-rom/BASELINE.md](msc-rom/BASELINE.md).
