@@ -96,6 +96,12 @@ if(BRIDGE_MODE STREQUAL "host")
     target_link_libraries(persistent_cosim PRIVATE epio)
     target_compile_definitions(persistent_cosim PRIVATE SB_PIO_REPLY_MARKER=1)
     target_compile_options(persistent_cosim PRIVATE -Wall -Wextra -Werror)
+    # Experiment2 host-only fixture; never part of a firmware target.
+    add_library(dual_fixed_cosim SHARED tests/dual_fixed_cosim.c src/pio_rearm_program.c)
+    target_link_libraries(dual_fixed_cosim PRIVATE epio)
+    target_include_directories(dual_fixed_cosim PRIVATE src)
+    target_compile_definitions(dual_fixed_cosim PRIVATE SB_PIO_REPLY_MARKER=1)
+    target_compile_options(dual_fixed_cosim PRIVATE -Wall -Wextra -Werror)
     add_executable(test_continuous_console tests/test_continuous_console.c src/continuous_console.c)
     target_include_directories(test_continuous_console PRIVATE src)
     target_compile_options(test_continuous_console PRIVATE -Wall -Wextra -Werror)
@@ -143,6 +149,14 @@ if(BRIDGE_MODE STREQUAL "host")
     find_program(SB_ARM_GCC arm-none-eabi-gcc)
     find_program(SB_ARM_LD arm-none-eabi-ld)
     if(SB_ARM_GCC AND SB_ARM_LD)
+        add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dual-fixed-HOST-ONLY.elf"
+            COMMAND "${SB_ARM_GCC}" -mcpu=cortex-m33 -mthumb -nostdlib
+                -Wl,-z,noexecstack -Wl,-Ttext=0x20001000 -Wl,--section-start=.bss=0x20040000
+                -Wl,--entry=sb_persistent_reply "${CMAKE_CURRENT_SOURCE_DIR}/src/persistent_reply.S"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/dual_fixed_words.c"
+                -o "${CMAKE_CURRENT_BINARY_DIR}/dual-fixed-HOST-ONLY.elf"
+            DEPENDS src/persistent_reply.S tests/dual_fixed_words.c VERBATIM)
+        add_custom_target(dual_fixed_reply_elf DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/dual-fixed-HOST-ONLY.elf")
         add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/cs1-reply.elf"
             COMMAND "${SB_ARM_GCC}" -mcpu=cortex-m33 -mthumb
                 "-I${CMAKE_CURRENT_SOURCE_DIR}/src" -c

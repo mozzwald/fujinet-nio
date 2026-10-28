@@ -36,14 +36,14 @@ sb_persistent_reply:
     /* Preserve the baseline's adjacent high-FIFO/low-SIO captures and lookup. */
     ldr r8, [r3, #0x20]
     ldr r9, [r4]
+    and r11, r8, r6
+    cmp r11, r7
+    bne .Lcs1_snapshot
     tst r8, r5
     itee ne
     movwne r10, #0xffff
     ubfxeq r11, r9, #1, #15
     ldrheq r10, [r1, r11, lsl #1]
-    and r11, r8, r6
-    cmp r11, r7
-    bne .Linvalid_snapshot
     str r10, [r3, #0x10]
 .Lposted:
     /* All accounting is after publication. Hold requests in LR. During
@@ -80,6 +80,15 @@ sb_persistent_reply:
 .Lcompletion_ok:
     add r12, r12, #2          /* FFFFFFFF -> 1; 0 -> 2 */
     b .Lnext_request
+/* The selected region is derived only from the owned FIFO snapshot. CS1
+ * returns a constant, with no mailbox, pointer/table or live-CS dispatch. */
+.Lcs1_snapshot:
+    add r11, r11, #1
+    cmp r11, r7
+    bne .Linvalid_snapshot
+    movw r10, #0xbeef
+    str r10, [r3, #0x10]
+    b .Lposted
 .Linvalid_snapshot:
     /* Exactly one old-owned dummy unblocks PULL, with sticky cancellation. */
     movs r10, #1

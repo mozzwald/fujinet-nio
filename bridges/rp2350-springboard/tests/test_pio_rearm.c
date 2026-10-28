@@ -63,13 +63,13 @@ static void step(struct sim *s,unsigned n) {
     while(n--) {
         cpu(s);
         epio_sm_state_t *main=&s->e->block[1].sm[0];unsigned pc=main->pc;
-        CHECK(pc<SB_PR_WATCH);bool executing=main->enabled&&!main->delay;
+        CHECK(pc<SB_PR_WATCH || (pc>=SB_PR_FALLBACK && pc<SB_PR_INSTRUCTIONS));bool executing=main->enabled&&!main->delay;
         unsigned rx=epio_rx_fifo_depth(s->e,1,0),tx=epio_tx_fifo_depth(s->e,1,0);
         bool before=driven(s);
         bool gate_cancel=epio_peek_block_irq_num(s->e,1,0);
         if(executing && pc==SB_PR_SNAPSHOT){s->snapshot_owner=s->owner;s->snapshot_address=s->address;}
         if(executing && pc==SB_PR_PULL && tx){s->loaded_owner=s->cpu_owner;s->loaded_word=s->cpu_valid?s->cpu_word:0;}
-        if(executing && pc==7)CHECK(!before);
+        if(executing && pc==SB_PR_PRELOAD)CHECK(!before);
         for(unsigned sm=0;sm<4;++sm) {
             epio_sm_state_t *m=&s->e->block[1].sm[sm];
             if(m->enabled && !m->delay && (s->code[m->pc]&0x1000)) {
@@ -120,8 +120,8 @@ static void init(struct sim *s,unsigned latency,unsigned post,unsigned prolog) {
     sb_pio_rearm_program_init(true);s->e=epio_init();CHECK(s->e);
     epio_set_gpio_output_control(s->e,39,1);epio_update_from_apio(s->e);
     for(unsigned i=0;i<32;++i){s->code[i]=epio_get_instr(s->e,1,i);epio_set_instr(s->e,1,i,s->code[i]&~0x1800u);}
-    CHECK((s->code[7]&0x1800u)==(SB_PIO_REPLY_MARKER?0x1800u:0));
-    CHECK((s->code[13]&0x1800u)==(SB_PIO_REPLY_MARKER?0:0x1800u));
+    CHECK((s->code[SB_PR_PRELOAD]&0x1800u)==(SB_PIO_REPLY_MARKER?0x1800u:0));
+    CHECK((s->code[SB_PR_ENABLE]&0x1800u)==(SB_PIO_REPLY_MARKER?0:0x1800u));
     bus(s,IDLE,0,40);CHECK(!driven(s));
 }
 static void pair(struct sim *s,unsigned addr,unsigned width,unsigned gap) {

@@ -1,4 +1,4 @@
-/* Separate live-writable MSC candidate. Frozen PIO and ARM sources unchanged. */
+/* MSC loader retained; isolated dual-CS fixed-read bus experiment. */
 #include "bus_model.h"
 #include "pio_rearm_program.h"
 #include "continuous_console.h"
@@ -37,11 +37,11 @@ static void park(void) {
     pio_sm_set_enabled(pio1,0,false);
     pio_sm_exec(pio1,0,APIO_MOV_PINDIRS_NULL);
     pio_set_sm_mask_enabled(pio1,15,false);
-    pio_set_sm_mask_enabled(pio0,3,false);
+    pio_set_sm_mask_enabled(pio0,7,false);
     for(unsigned sm=0;sm<4;++sm) {
         pio_sm_clear_fifos(pio1,sm);pio_sm_restart(pio1,sm);
     }
-    for(unsigned sm=0;sm<2;++sm) {
+    for(unsigned sm=0;sm<3;++sm) {
         pio_sm_clear_fifos(pio0,sm);pio_sm_restart(pio0,sm);
     }
     pio_sm_exec(pio1,0,APIO_SET_PINS(0));
@@ -51,10 +51,11 @@ static void start(void) {
     pio_sm_exec(pio1,0,APIO_SET_Y(10));
     pio_sm_exec(pio1,0,APIO_JMP(SB_PR_MAIN));
     pio_sm_exec(pio1,1,APIO_JMP(SB_PR_WATCH));
-    pio_sm_exec(pio1,2,APIO_JMP(SB_PR_WATCH));
+    pio_sm_exec(pio1,2,APIO_JMP(SB_PR_OE));
     pio_sm_exec(pio1,3,APIO_JMP(SB_PR_RESET));
-    pio_sm_exec(pio0,0,APIO_JMP(0));pio_sm_exec(pio0,1,APIO_JMP(0));
-    pio_enable_sm_mask_in_sync(pio0,3);
+    pio_sm_exec(pio0,0,APIO_JMP(0));pio_sm_exec(pio0,1,APIO_JMP(3));
+    pio_sm_exec(pio0,2,APIO_JMP(3));
+    pio_enable_sm_mask_in_sync(pio0,7);
     pio_enable_sm_mask_in_sync(pio1,15);
 }
 static void service(void) {

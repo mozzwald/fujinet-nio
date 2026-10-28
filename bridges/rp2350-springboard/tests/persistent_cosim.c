@@ -59,7 +59,7 @@ int sb_cosim_step(unsigned clocks) {
         bool cancelled=epio_peek_block_irq_num(s.e,1,0);
         if(executing&&pc==SB_PR_SNAPSHOT)s.snapshotowner=owner;
         if(executing&&pc==SB_PR_PULL&&tx)s.loadedowner=s.txowner;
-        if(executing&&pc==7&&before)s.error=2;
+        if(executing&&pc==SB_PR_PRELOAD&&before)s.error=2;
         uint64_t marker=s.e->gpio.gpio_output_state&MARKER;
         for(unsigned sm=0;sm<4;++sm){
             epio_sm_state_t *a=&s.e->block[1].sm[sm];
