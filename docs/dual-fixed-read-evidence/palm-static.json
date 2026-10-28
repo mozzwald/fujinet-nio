@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "name": "CS1 Fixed E2",
+  "creator": "FNFR",
+  "type": "appl",
+  "attributes": 1,
+  "prc_bytes": 3776,
+  "prc_sha256": "a67f31b0b7a3314922d4e587dc3428759a8366bb9d85ed1beaf3a42379ae1d0e",
+  "code1_sha256": "89ccf615e51b44b1e4b9ee28d7ec229f2b2aa07cbd3e14f95ea5e481c67a9188",
+  "explicit_move_w": true,
+  "explicit_rom_move_l": true,
+  "pc_relative_ram_location_probe": true,
+  "hardware_tested": false
+}

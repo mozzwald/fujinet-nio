@@ -1,0 +1,9 @@
+{
+  "result": "PASS",
+  "experiment1_head": "d38ccee2f1a15ec7862508a3ff1e5b0ea9549134",
+  "experiment1_branch": "experiment/pio-dual-cs-preparation",
+  "source_files_checked": 1026,
+  "artifacts_checked": 6,
+  "unchanged": true,
+  "snapshot": "/home/mozzwald/nio/investigation-records/dual-cs-fixed-read-20261028/experiment1-before.json"
+}

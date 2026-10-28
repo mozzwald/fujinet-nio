@@ -1,0 +1,2347 @@
+{
+  "scope": "equal original uncalibrated ARM profiles; 68-clock windows,6-clock gaps,8 phases; no physical sampling margin",
+  "metrics": {
+    "exp1-cs0-p1": {
+      "select_request": [
+        13,
+        15
+      ],
+      "request_tx": [
+        14,
+        19
+      ],
+      "rx_tx": [
+        10,
+        10
+      ],
+      "tx_preload": [
+        2,
+        2
+      ],
+      "preload_enable": [
+        5,
+        5
+      ],
+      "select_enable": [
+        34,
+        40
+      ],
+      "end_release": [
+        5,
+        5
+      ]
+    },
+    "exp1-cs0-p2": {
+      "select_request": [
+        13,
+        15
+      ],
+      "request_tx": [
+        20,
+        37
+      ],
+      "rx_tx": [
+        14,
+        14
+      ],
+      "tx_preload": [
+        2,
+        2
+      ],
+      "preload_enable": [
+        5,
+        5
+      ],
+      "select_enable": [
+        40,
+        58
+      ],
+      "end_release": [
+        5,
+        5
+      ]
+    },
+    "exp2-cs0-p1": {
+      "select_request": [
+        12,
+        17
+      ],
+      "request_tx": [
+        15,
+        20
+      ],
+      "rx_tx": [
+        10,
+        10
+      ],
+      "tx_preload": [
+        2,
+        2
+      ],
+      "preload_enable": [
+        5,
+        5
+      ],
+      "select_enable": [
+        34,
+        42
+      ],
+      "end_release": [
+        5,
+        5
+      ]
+    },
+    "exp2-cs0-p2": {
+      "select_request": [
+        12,
+        17
+      ],
+      "request_tx": [
+        21,
+        38
+      ],
+      "rx_tx": [
+        14,
+        14
+      ],
+      "tx_preload": [
+        2,
+        2
+      ],
+      "preload_enable": [
+        5,
+        5
+      ],
+      "select_enable": [
+        40,
+        57
+      ],
+      "end_release": [
+        5,
+        5
+      ]
+    },
+    "exp2-cs1-p1": {
+      "select_request": [
+        15,
+        20
+      ],
+      "request_tx": [
+        12,
+        17
+      ],
+      "rx_tx": [
+        9,
+        9
+      ],
+      "tx_preload": [
+        2,
+        2
+      ],
+      "preload_enable": [
+        5,
+        5
+      ],
+      "select_enable": [
+        34,
+        41
+      ],
+      "end_release": [
+        5,
+        5
+      ]
+    },
+    "exp2-cs1-p2": {
+      "select_request": [
+        15,
+        20
+      ],
+      "request_tx": [
+        21,
+        34
+      ],
+      "rx_tx": [
+        13,
+        13
+      ],
+      "tx_preload": [
+        2,
+        2
+      ],
+      "preload_enable": [
+        5,
+        5
+      ],
+      "select_enable": [
+        45,
+        56
+      ],
+      "end_release": [
+        5,
+        5
+      ]
+    }
+  },
+  "rows": [
+    {
+      "engine": "exp1-cs0",
+      "profile": 1,
+      "phase": 0,
+      "select": [
+        100,
+        174
+      ],
+      "end": [
+        168,
+        242
+      ],
+      "request": [
+        113,
+        188
+      ],
+      "rx": [
+        120,
+        195
+      ],
+      "tx": [
+        130,
+        205
+      ],
+      "preload": [
+        132,
+        207
+      ],
+      "enable": [
+        137,
+        212
+      ],
+      "release": [
+        173,
+        247
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 1,
+      "phase": 0,
+      "select": [
+        100,
+        174
+      ],
+      "end": [
+        168,
+        242
+      ],
+      "request": [
+        112,
+        186
+      ],
+      "rx": [
+        120,
+        195
+      ],
+      "tx": [
+        130,
+        205
+      ],
+      "preload": [
+        132,
+        207
+      ],
+      "enable": [
+        137,
+        212
+      ],
+      "release": [
+        173,
+        247
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 1,
+      "phase": 0,
+      "select": [
+        100,
+        174
+      ],
+      "end": [
+        168,
+        242
+      ],
+      "request": [
+        115,
+        189
+      ],
+      "rx": [
+        120,
+        195
+      ],
+      "tx": [
+        129,
+        204
+      ],
+      "preload": [
+        131,
+        206
+      ],
+      "enable": [
+        136,
+        211
+      ],
+      "release": [
+        173,
+        247
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 1,
+      "phase": 1,
+      "select": [
+        101,
+        175
+      ],
+      "end": [
+        169,
+        243
+      ],
+      "request": [
+        116,
+        189
+      ],
+      "rx": [
+        120,
+        195
+      ],
+      "tx": [
+        130,
+        205
+      ],
+      "preload": [
+        132,
+        207
+      ],
+      "enable": [
+        137,
+        212
+      ],
+      "release": [
+        174,
+        248
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 1,
+      "phase": 1,
+      "select": [
+        101,
+        175
+      ],
+      "end": [
+        169,
+        243
+      ],
+      "request": [
+        118,
+        187
+      ],
+      "rx": [
+        126,
+        195
+      ],
+      "tx": [
+        136,
+        205
+      ],
+      "preload": [
+        138,
+        207
+      ],
+      "enable": [
+        143,
+        212
+      ],
+      "release": [
+        174,
+        248
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 1,
+      "phase": 1,
+      "select": [
+        101,
+        175
+      ],
+      "end": [
+        169,
+        243
+      ],
+      "request": [
+        121,
+        190
+      ],
+      "rx": [
+        126,
+        195
+      ],
+      "tx": [
+        135,
+        204
+      ],
+      "preload": [
+        137,
+        206
+      ],
+      "enable": [
+        142,
+        211
+      ],
+      "release": [
+        174,
+        248
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 1,
+      "phase": 2,
+      "select": [
+        102,
+        176
+      ],
+      "end": [
+        170,
+        244
+      ],
+      "request": [
+        116,
+        190
+      ],
+      "rx": [
+        120,
+        195
+      ],
+      "tx": [
+        130,
+        205
+      ],
+      "preload": [
+        132,
+        207
+      ],
+      "enable": [
+        137,
+        212
+      ],
+      "release": [
+        175,
+        249
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 1,
+      "phase": 2,
+      "select": [
+        102,
+        176
+      ],
+      "end": [
+        170,
+        244
+      ],
+      "request": [
+        118,
+        188
+      ],
+      "rx": [
+        126,
+        195
+      ],
+      "tx": [
+        136,
+        205
+      ],
+      "preload": [
+        138,
+        207
+      ],
+      "enable": [
+        143,
+        212
+      ],
+      "release": [
+        175,
+        249
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 1,
+      "phase": 2,
+      "select": [
+        102,
+        176
+      ],
+      "end": [
+        170,
+        244
+      ],
+      "request": [
+        121,
+        191
+      ],
+      "rx": [
+        126,
+        195
+      ],
+      "tx": [
+        135,
+        204
+      ],
+      "preload": [
+        137,
+        206
+      ],
+      "enable": [
+        142,
+        211
+      ],
+      "release": [
+        175,
+        249
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 1,
+      "phase": 3,
+      "select": [
+        103,
+        177
+      ],
+      "end": [
+        171,
+        245
+      ],
+      "request": [
+        116,
+        191
+      ],
+      "rx": [
+        120,
+        195
+      ],
+      "tx": [
+        130,
+        205
+      ],
+      "preload": [
+        132,
+        207
+      ],
+      "enable": [
+        137,
+        212
+      ],
+      "release": [
+        176,
+        250
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 1,
+      "phase": 3,
+      "select": [
+        103,
+        177
+      ],
+      "end": [
+        171,
+        245
+      ],
+      "request": [
+        118,
+        189
+      ],
+      "rx": [
+        126,
+        195
+      ],
+      "tx": [
+        136,
+        205
+      ],
+      "preload": [
+        138,
+        207
+      ],
+      "enable": [
+        143,
+        212
+      ],
+      "release": [
+        176,
+        250
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 1,
+      "phase": 3,
+      "select": [
+        103,
+        177
+      ],
+      "end": [
+        171,
+        245
+      ],
+      "request": [
+        121,
+        192
+      ],
+      "rx": [
+        126,
+        195
+      ],
+      "tx": [
+        135,
+        204
+      ],
+      "preload": [
+        137,
+        206
+      ],
+      "enable": [
+        142,
+        211
+      ],
+      "release": [
+        176,
+        250
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 1,
+      "phase": 4,
+      "select": [
+        104,
+        178
+      ],
+      "end": [
+        172,
+        246
+      ],
+      "request": [
+        119,
+        192
+      ],
+      "rx": [
+        126,
+        201
+      ],
+      "tx": [
+        136,
+        211
+      ],
+      "preload": [
+        138,
+        213
+      ],
+      "enable": [
+        143,
+        218
+      ],
+      "release": [
+        177,
+        251
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 1,
+      "phase": 4,
+      "select": [
+        104,
+        178
+      ],
+      "end": [
+        172,
+        246
+      ],
+      "request": [
+        118,
+        190
+      ],
+      "rx": [
+        126,
+        195
+      ],
+      "tx": [
+        136,
+        205
+      ],
+      "preload": [
+        138,
+        207
+      ],
+      "enable": [
+        143,
+        212
+      ],
+      "release": [
+        177,
+        251
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 1,
+      "phase": 4,
+      "select": [
+        104,
+        178
+      ],
+      "end": [
+        172,
+        246
+      ],
+      "request": [
+        121,
+        193
+      ],
+      "rx": [
+        126,
+        201
+      ],
+      "tx": [
+        135,
+        210
+      ],
+      "preload": [
+        137,
+        212
+      ],
+      "enable": [
+        142,
+        217
+      ],
+      "release": [
+        177,
+        251
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 1,
+      "phase": 5,
+      "select": [
+        105,
+        179
+      ],
+      "end": [
+        173,
+        247
+      ],
+      "request": [
+        119,
+        193
+      ],
+      "rx": [
+        126,
+        201
+      ],
+      "tx": [
+        136,
+        211
+      ],
+      "preload": [
+        138,
+        213
+      ],
+      "enable": [
+        143,
+        218
+      ],
+      "release": [
+        178,
+        252
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 1,
+      "phase": 5,
+      "select": [
+        105,
+        179
+      ],
+      "end": [
+        173,
+        247
+      ],
+      "request": [
+        118,
+        191
+      ],
+      "rx": [
+        126,
+        201
+      ],
+      "tx": [
+        136,
+        211
+      ],
+      "preload": [
+        138,
+        213
+      ],
+      "enable": [
+        143,
+        218
+      ],
+      "release": [
+        178,
+        252
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 1,
+      "phase": 5,
+      "select": [
+        105,
+        179
+      ],
+      "end": [
+        173,
+        247
+      ],
+      "request": [
+        121,
+        194
+      ],
+      "rx": [
+        126,
+        201
+      ],
+      "tx": [
+        135,
+        210
+      ],
+      "preload": [
+        137,
+        212
+      ],
+      "enable": [
+        142,
+        217
+      ],
+      "release": [
+        178,
+        252
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 1,
+      "phase": 6,
+      "select": [
+        106,
+        180
+      ],
+      "end": [
+        174,
+        248
+      ],
+      "request": [
+        119,
+        194
+      ],
+      "rx": [
+        126,
+        201
+      ],
+      "tx": [
+        136,
+        211
+      ],
+      "preload": [
+        138,
+        213
+      ],
+      "enable": [
+        143,
+        218
+      ],
+      "release": [
+        179,
+        253
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 1,
+      "phase": 6,
+      "select": [
+        106,
+        180
+      ],
+      "end": [
+        174,
+        248
+      ],
+      "request": [
+        118,
+        192
+      ],
+      "rx": [
+        126,
+        201
+      ],
+      "tx": [
+        136,
+        211
+      ],
+      "preload": [
+        138,
+        213
+      ],
+      "enable": [
+        143,
+        218
+      ],
+      "release": [
+        179,
+        253
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 1,
+      "phase": 6,
+      "select": [
+        106,
+        180
+      ],
+      "end": [
+        174,
+        248
+      ],
+      "request": [
+        121,
+        195
+      ],
+      "rx": [
+        126,
+        201
+      ],
+      "tx": [
+        135,
+        210
+      ],
+      "preload": [
+        137,
+        212
+      ],
+      "enable": [
+        142,
+        217
+      ],
+      "release": [
+        179,
+        253
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 1,
+      "phase": 7,
+      "select": [
+        107,
+        181
+      ],
+      "end": [
+        175,
+        249
+      ],
+      "request": [
+        122,
+        195
+      ],
+      "rx": [
+        126,
+        201
+      ],
+      "tx": [
+        136,
+        211
+      ],
+      "preload": [
+        138,
+        213
+      ],
+      "enable": [
+        143,
+        218
+      ],
+      "release": [
+        180,
+        254
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 1,
+      "phase": 7,
+      "select": [
+        107,
+        181
+      ],
+      "end": [
+        175,
+        249
+      ],
+      "request": [
+        124,
+        193
+      ],
+      "rx": [
+        132,
+        201
+      ],
+      "tx": [
+        142,
+        211
+      ],
+      "preload": [
+        144,
+        213
+      ],
+      "enable": [
+        149,
+        218
+      ],
+      "release": [
+        180,
+        254
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 1,
+      "phase": 7,
+      "select": [
+        107,
+        181
+      ],
+      "end": [
+        175,
+        249
+      ],
+      "request": [
+        127,
+        196
+      ],
+      "rx": [
+        132,
+        201
+      ],
+      "tx": [
+        141,
+        210
+      ],
+      "preload": [
+        143,
+        212
+      ],
+      "enable": [
+        148,
+        217
+      ],
+      "release": [
+        180,
+        254
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 2,
+      "phase": 0,
+      "select": [
+        100,
+        174
+      ],
+      "end": [
+        168,
+        242
+      ],
+      "request": [
+        113,
+        188
+      ],
+      "rx": [
+        125,
+        206
+      ],
+      "tx": [
+        139,
+        220
+      ],
+      "preload": [
+        141,
+        222
+      ],
+      "enable": [
+        146,
+        227
+      ],
+      "release": [
+        173,
+        247
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 2,
+      "phase": 0,
+      "select": [
+        100,
+        174
+      ],
+      "end": [
+        168,
+        242
+      ],
+      "request": [
+        112,
+        186
+      ],
+      "rx": [
+        125,
+        206
+      ],
+      "tx": [
+        139,
+        220
+      ],
+      "preload": [
+        141,
+        222
+      ],
+      "enable": [
+        146,
+        227
+      ],
+      "release": [
+        173,
+        247
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 2,
+      "phase": 0,
+      "select": [
+        100,
+        174
+      ],
+      "end": [
+        168,
+        242
+      ],
+      "request": [
+        115,
+        189
+      ],
+      "rx": [
+        125,
+        207
+      ],
+      "tx": [
+        138,
+        220
+      ],
+      "preload": [
+        140,
+        222
+      ],
+      "enable": [
+        145,
+        227
+      ],
+      "release": [
+        173,
+        247
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 2,
+      "phase": 1,
+      "select": [
+        101,
+        175
+      ],
+      "end": [
+        169,
+        243
+      ],
+      "request": [
+        116,
+        189
+      ],
+      "rx": [
+        125,
+        206
+      ],
+      "tx": [
+        139,
+        220
+      ],
+      "preload": [
+        141,
+        222
+      ],
+      "enable": [
+        146,
+        227
+      ],
+      "release": [
+        174,
+        248
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 2,
+      "phase": 1,
+      "select": [
+        101,
+        175
+      ],
+      "end": [
+        169,
+        243
+      ],
+      "request": [
+        118,
+        187
+      ],
+      "rx": [
+        125,
+        206
+      ],
+      "tx": [
+        139,
+        220
+      ],
+      "preload": [
+        141,
+        222
+      ],
+      "enable": [
+        146,
+        227
+      ],
+      "release": [
+        174,
+        248
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 2,
+      "phase": 1,
+      "select": [
+        101,
+        175
+      ],
+      "end": [
+        169,
+        243
+      ],
+      "request": [
+        121,
+        190
+      ],
+      "rx": [
+        135,
+        207
+      ],
+      "tx": [
+        148,
+        220
+      ],
+      "preload": [
+        150,
+        222
+      ],
+      "enable": [
+        155,
+        227
+      ],
+      "release": [
+        174,
+        248
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 2,
+      "phase": 2,
+      "select": [
+        102,
+        176
+      ],
+      "end": [
+        170,
+        244
+      ],
+      "request": [
+        116,
+        190
+      ],
+      "rx": [
+        125,
+        206
+      ],
+      "tx": [
+        139,
+        220
+      ],
+      "preload": [
+        141,
+        222
+      ],
+      "enable": [
+        146,
+        227
+      ],
+      "release": [
+        175,
+        249
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 2,
+      "phase": 2,
+      "select": [
+        102,
+        176
+      ],
+      "end": [
+        170,
+        244
+      ],
+      "request": [
+        118,
+        188
+      ],
+      "rx": [
+        125,
+        206
+      ],
+      "tx": [
+        139,
+        220
+      ],
+      "preload": [
+        141,
+        222
+      ],
+      "enable": [
+        146,
+        227
+      ],
+      "release": [
+        175,
+        249
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 2,
+      "phase": 2,
+      "select": [
+        102,
+        176
+      ],
+      "end": [
+        170,
+        244
+      ],
+      "request": [
+        121,
+        191
+      ],
+      "rx": [
+        135,
+        207
+      ],
+      "tx": [
+        148,
+        220
+      ],
+      "preload": [
+        150,
+        222
+      ],
+      "enable": [
+        155,
+        227
+      ],
+      "release": [
+        175,
+        249
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 2,
+      "phase": 3,
+      "select": [
+        103,
+        177
+      ],
+      "end": [
+        171,
+        245
+      ],
+      "request": [
+        116,
+        191
+      ],
+      "rx": [
+        125,
+        206
+      ],
+      "tx": [
+        139,
+        220
+      ],
+      "preload": [
+        141,
+        222
+      ],
+      "enable": [
+        146,
+        227
+      ],
+      "release": [
+        176,
+        250
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 2,
+      "phase": 3,
+      "select": [
+        103,
+        177
+      ],
+      "end": [
+        171,
+        245
+      ],
+      "request": [
+        118,
+        189
+      ],
+      "rx": [
+        125,
+        206
+      ],
+      "tx": [
+        139,
+        220
+      ],
+      "preload": [
+        141,
+        222
+      ],
+      "enable": [
+        146,
+        227
+      ],
+      "release": [
+        176,
+        250
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 2,
+      "phase": 3,
+      "select": [
+        103,
+        177
+      ],
+      "end": [
+        171,
+        245
+      ],
+      "request": [
+        121,
+        192
+      ],
+      "rx": [
+        135,
+        207
+      ],
+      "tx": [
+        148,
+        220
+      ],
+      "preload": [
+        150,
+        222
+      ],
+      "enable": [
+        155,
+        227
+      ],
+      "release": [
+        176,
+        250
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 2,
+      "phase": 4,
+      "select": [
+        104,
+        178
+      ],
+      "end": [
+        172,
+        246
+      ],
+      "request": [
+        119,
+        192
+      ],
+      "rx": [
+        125,
+        206
+      ],
+      "tx": [
+        139,
+        220
+      ],
+      "preload": [
+        141,
+        222
+      ],
+      "enable": [
+        146,
+        227
+      ],
+      "release": [
+        177,
+        251
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 2,
+      "phase": 4,
+      "select": [
+        104,
+        178
+      ],
+      "end": [
+        172,
+        246
+      ],
+      "request": [
+        118,
+        190
+      ],
+      "rx": [
+        125,
+        206
+      ],
+      "tx": [
+        139,
+        220
+      ],
+      "preload": [
+        141,
+        222
+      ],
+      "enable": [
+        146,
+        227
+      ],
+      "release": [
+        177,
+        251
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 2,
+      "phase": 4,
+      "select": [
+        104,
+        178
+      ],
+      "end": [
+        172,
+        246
+      ],
+      "request": [
+        121,
+        193
+      ],
+      "rx": [
+        135,
+        207
+      ],
+      "tx": [
+        148,
+        220
+      ],
+      "preload": [
+        150,
+        222
+      ],
+      "enable": [
+        155,
+        227
+      ],
+      "release": [
+        177,
+        251
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 2,
+      "phase": 5,
+      "select": [
+        105,
+        179
+      ],
+      "end": [
+        173,
+        247
+      ],
+      "request": [
+        119,
+        193
+      ],
+      "rx": [
+        125,
+        216
+      ],
+      "tx": [
+        139,
+        230
+      ],
+      "preload": [
+        141,
+        232
+      ],
+      "enable": [
+        146,
+        237
+      ],
+      "release": [
+        178,
+        252
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 2,
+      "phase": 5,
+      "select": [
+        105,
+        179
+      ],
+      "end": [
+        173,
+        247
+      ],
+      "request": [
+        118,
+        191
+      ],
+      "rx": [
+        125,
+        206
+      ],
+      "tx": [
+        139,
+        220
+      ],
+      "preload": [
+        141,
+        222
+      ],
+      "enable": [
+        146,
+        227
+      ],
+      "release": [
+        178,
+        252
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 2,
+      "phase": 5,
+      "select": [
+        105,
+        179
+      ],
+      "end": [
+        173,
+        247
+      ],
+      "request": [
+        121,
+        194
+      ],
+      "rx": [
+        135,
+        207
+      ],
+      "tx": [
+        148,
+        220
+      ],
+      "preload": [
+        150,
+        222
+      ],
+      "enable": [
+        155,
+        227
+      ],
+      "release": [
+        178,
+        252
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 2,
+      "phase": 6,
+      "select": [
+        106,
+        180
+      ],
+      "end": [
+        174,
+        248
+      ],
+      "request": [
+        119,
+        194
+      ],
+      "rx": [
+        125,
+        216
+      ],
+      "tx": [
+        139,
+        230
+      ],
+      "preload": [
+        141,
+        232
+      ],
+      "enable": [
+        146,
+        237
+      ],
+      "release": [
+        179,
+        253
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 2,
+      "phase": 6,
+      "select": [
+        106,
+        180
+      ],
+      "end": [
+        174,
+        248
+      ],
+      "request": [
+        118,
+        192
+      ],
+      "rx": [
+        125,
+        216
+      ],
+      "tx": [
+        139,
+        230
+      ],
+      "preload": [
+        141,
+        232
+      ],
+      "enable": [
+        146,
+        237
+      ],
+      "release": [
+        179,
+        253
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 2,
+      "phase": 6,
+      "select": [
+        106,
+        180
+      ],
+      "end": [
+        174,
+        248
+      ],
+      "request": [
+        121,
+        195
+      ],
+      "rx": [
+        135,
+        207
+      ],
+      "tx": [
+        148,
+        220
+      ],
+      "preload": [
+        150,
+        222
+      ],
+      "enable": [
+        155,
+        227
+      ],
+      "release": [
+        179,
+        253
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp1-cs0",
+      "profile": 2,
+      "phase": 7,
+      "select": [
+        107,
+        181
+      ],
+      "end": [
+        175,
+        249
+      ],
+      "request": [
+        122,
+        195
+      ],
+      "rx": [
+        135,
+        216
+      ],
+      "tx": [
+        149,
+        230
+      ],
+      "preload": [
+        151,
+        232
+      ],
+      "enable": [
+        156,
+        237
+      ],
+      "release": [
+        180,
+        254
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs0",
+      "profile": 2,
+      "phase": 7,
+      "select": [
+        107,
+        181
+      ],
+      "end": [
+        175,
+        249
+      ],
+      "request": [
+        124,
+        193
+      ],
+      "rx": [
+        135,
+        216
+      ],
+      "tx": [
+        149,
+        230
+      ],
+      "preload": [
+        151,
+        232
+      ],
+      "enable": [
+        156,
+        237
+      ],
+      "release": [
+        180,
+        254
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    },
+    {
+      "engine": "exp2-cs1",
+      "profile": 2,
+      "phase": 7,
+      "select": [
+        107,
+        181
+      ],
+      "end": [
+        175,
+        249
+      ],
+      "request": [
+        127,
+        196
+      ],
+      "rx": [
+        135,
+        217
+      ],
+      "tx": [
+        148,
+        230
+      ],
+      "preload": [
+        150,
+        232
+      ],
+      "enable": [
+        155,
+        237
+      ],
+      "release": [
+        180,
+        254
+      ],
+      "totals": {
+        "requests": 2,
+        "posted": 2,
+        "completed": 2,
+        "attempted": 2,
+        "cancelled": 0,
+        "fault": 0
+      }
+    }
+  ]
+}

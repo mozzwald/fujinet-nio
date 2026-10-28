@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/scripts/test-dual-fixed-read.py", line 31, in <module>
+    sys.argv=[sys.argv[0],str(a.elf),str(a.library),'--output',str(a.output)];m.main();raise SystemExit(0)
+                                                                              ^^^^^^^^
+  File "dual_fixed", line 236, in main
+  File "dual_fixed", line 190, in run
+  File "/home/mozzwald/.cache/uv/archive-v0/-NsDhFigw7cq4tU4/lib/python3.11/site-packages/unicorn/unicorn_py3/unicorn.py", line 769, in emu_start
+    raise self._hook_exception
+  File "/home/mozzwald/.cache/uv/archive-v0/-NsDhFigw7cq4tU4/lib/python3.11/site-packages/unicorn/unicorn_py3/unicorn.py", line 363, in wrapper
+    return func(uc, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mozzwald/.cache/uv/archive-v0/-NsDhFigw7cq4tU4/lib/python3.11/site-packages/unicorn/unicorn_py3/unicorn.py", line 1063, in __hook_code_cb
+    callback(uc, address, size, user_data)
+  File "dual_fixed", line 122, in code
+  File "dual_fixed", line 95, in advance
+AssertionError: ('PIO safety', 10, 128, [(80, 122, 8, 35184372744192), (122, 128, 8, 35184373006336), (128, 348, 1092, 35184372744192)], 2, None)

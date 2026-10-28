@@ -1,0 +1,292 @@
+Start testing: Oct 28 06:12 CDT
+----------------------------------------------------------
+1/14 Testing: springboard
+1/14 Test: springboard
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_springboard"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"springboard" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+Springboard model and passive PIO tests passed
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"springboard" end time: Oct 28 06:12 CDT
+"springboard" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/14 Testing: rom_program
+2/14 Test: rom_program
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_rom_program"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"rom_program" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+ROM guard: 480 cancellation phases passed; worst park=11 PIO cycles
+KNOWN LIMIT: one-clock deselect can be missed; not boot/timing qualified
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"rom_program" end time: Oct 28 06:12 CDT
+"rom_program" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/14 Testing: rom_drive_marker
+3/14 Test: rom_drive_marker
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_rom_drive_marker"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"rom_drive_marker" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+ROM guard: 480 cancellation phases passed; worst park=11 PIO cycles
+GPIO39 side-set model matches data PINDIRS on every tested clock; no added PIO clocks
+KNOWN LIMIT: one-clock deselect can be missed; not boot/timing qualified
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"rom_drive_marker" end time: Oct 28 06:12 CDT
+"rom_drive_marker" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/14 Testing: latency_program
+4/14 Test: latency_program
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_latency_program"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"latency_program" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+RX-first late publication:1536 cancelled requests flushed before ack; next word preserved.
+Rapid reselect CS0: gap=1 clocks stale=6/8 sustained-release<=6 clocks
+Rapid reselect CS0: gap=2 clocks stale=4/8 sustained-release<=5 clocks
+Rapid reselect CS0: gap=3 clocks stale=2/8 sustained-release<=4 clocks
+Rapid reselect CS0: gap=4 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect CS0: gap=5 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect CS0: gap=6 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect CS0: gap=7 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect CS0: gap=8 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect CS0: gap=9 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect CS0: gap=10 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect CS0: gap=11 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect CS0: gap=12 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect CS0: gap=13 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect CS0: gap=14 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect CS0: gap=15 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect CS0: gap=16 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=1 clocks stale=6/8 sustained-release<=6 clocks
+Rapid reselect OE: gap=2 clocks stale=4/8 sustained-release<=5 clocks
+Rapid reselect OE: gap=3 clocks stale=2/8 sustained-release<=4 clocks
+Rapid reselect OE: gap=4 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=5 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=6 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=7 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=8 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=9 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=10 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=11 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=12 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=13 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=14 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=15 clocks stale=0/8 sustained-release<=0 clocks
+Rapid reselect OE: gap=16 clocks stale=0/8 sustained-release<=0 clocks
+Latency modes/profiles:9600 cancellation phases PASS; worst park=12 clocks
+Known one-clock deselect blind interval reproduced in 20 mode/profile combinations
+PIO constants need no CPU TX reply; baseline CPU words and guards otherwise unchanged. Hardware/skew/synchronizers unmodeled.
+<end of output>
+Test time =   3.03 sec
+----------------------------------------------------------
+Test Passed.
+"latency_program" end time: Oct 28 06:12 CDT
+"latency_program" time elapsed: 00:00:03
+----------------------------------------------------------
+
+5/14 Testing: continuous_program
+5/14 Test: continuous_program
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_continuous_program"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"continuous_program" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+Sticky CS0/OE: 512 rapid reselect phases; no persistent stale drive
+Preload/enable short-gap ownership: 640 phases PASS
+Cancellation/reply ownership: 480 phases; next word not contaminated
+Selected rearm/repeated address/reset: 40 phases PASS
+Empty-FIFO restart: 320 reselection/reset phases; dirty FIFO fallback PASS
+Host-stop IRQ preserved at all 10 restart stages PASS
+Continuous PIO model PASS; synchronizers/pad timing unmodeled
+<end of output>
+Test time =   0.52 sec
+----------------------------------------------------------
+Test Passed.
+"continuous_program" end time: Oct 28 06:12 CDT
+"continuous_program" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/14 Testing: pio_rearm
+6/14 Test: pio_rearm
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_pio_rearm"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"pio_rearm" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+basic: req2 completed2 enables2 attempted2 cancels0 release3 clocks
+Continuous PIO paired reads: 2250 phases PASS; 5..7 clocks bracket measured gaps before input synchronization
+OE lead/lag/held-active across5..7-clock CS0 gaps: 120 cases PASS
+Cancellation/late-response: 10080 phases PASS; fresh recovery, 254 attempts inside <=2-clock edge propagation window
+CPU stalls at80 phases: autonomous release, late response isolation and recovery PASS
+200 changing/repeated addresses without CPU epoch cleanup PASS
+Held RESET: no persistent drive; released RESET accepts fresh request PASS
+<end of output>
+Test time =   7.14 sec
+----------------------------------------------------------
+Test Passed.
+"pio_rearm" end time: Oct 28 06:12 CDT
+"pio_rearm" time elapsed: 00:00:07
+----------------------------------------------------------
+
+7/14 Testing: pio_reply_marker
+7/14 Test: pio_reply_marker
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_pio_reply_marker"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"pio_reply_marker" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+basic: req2 completed2 enables2 attempted2 cancels0 release3 clocks
+Continuous PIO paired reads: 2250 phases PASS; 5..7 clocks bracket measured gaps before input synchronization
+OE lead/lag/held-active across5..7-clock CS0 gaps: 120 cases PASS
+Cancellation/late-response: 10080 phases PASS; fresh recovery, 254 attempts inside <=2-clock edge propagation window
+CPU stalls at80 phases: autonomous release, late response isolation and recovery PASS
+200 changing/repeated addresses without CPU epoch cleanup PASS
+Held RESET: no persistent drive; released RESET accepts fresh request PASS
+<end of output>
+Test time =   7.12 sec
+----------------------------------------------------------
+Test Passed.
+"pio_reply_marker" end time: Oct 28 06:12 CDT
+"pio_reply_marker" time elapsed: 00:00:07
+----------------------------------------------------------
+
+8/14 Testing: continuous_console
+8/14 Test: continuous_console
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_continuous_console"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"continuous_console" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+Continuous status: all fields preserved, UINT32_MAX pages under128bytes, truncation detectable PASS
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"continuous_console" end time: Oct 28 06:12 CDT
+"continuous_console" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/14 Testing: cs1_program
+9/14 Test: cs1_program
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_cs1_program"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"cs1_program" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+write-end=13 start=23450004/20012345 epoch=00000000 outcome=00000000 commit=1 fault=0
+write-end=7 start=23450004/20012345 epoch=00000000 outcome=ffffffff commit=0 fault=0
+write-end=15 start=23450004/20012345 epoch=00000000 outcome=00000000 commit=1 fault=0
+CS1 prototype: 1024 mixed read phase/gap cases, late replies, stalled release, disarm and paired write snapshots PASS
+1000 functional mixed iterations: 3000 reads /1000 writes PASS (C CPU model, not ARM timing)
+Write-ending regression: legal zero-hold commits; early CS1 cancellation retires without commit
+900 ending phase/order cases;192 rapid-write/pressure cases;64 cancel-next-epoch cases;24 sticky control faults; stale/malformed outcomes PASS
+<end of output>
+Test time =   1.63 sec
+----------------------------------------------------------
+Test Passed.
+"cs1_program" end time: Oct 28 06:12 CDT
+"cs1_program" time elapsed: 00:00:01
+----------------------------------------------------------
+
+10/14 Testing: async_read_identity
+10/14 Test: async_read_identity
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_async_read_identity"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"async_read_identity" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+PASS: all29 read-owner/release instruction words unchanged
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"async_read_identity" end time: Oct 28 06:12 CDT
+"async_read_identity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/14 Testing: async_boot
+11/14 Test: async_boot
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_async_boot"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"async_boot" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+PASS one-shot boot:128 readiness/fault states and no retry after stop
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"async_boot" end time: Oct 28 06:12 CDT
+"async_boot" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/14 Testing: async_stage_a
+12/14 Test: async_stage_a
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_async_stage_a"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"async_stage_a" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+PASS async Stage A: cancellation, ordered acceptance, duplicate, sequence, epoch, FIFO/control/reset quarantine
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"async_stage_a" end time: Oct 28 06:12 CDT
+"async_stage_a" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/14 Testing: msc_store
+13/14 Test: msc_store
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_msc_store"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"msc_store" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+PASS seed, readback, restart, bounds, partial/cross-sector RMW
+PASS full disk, GC wrap, live-sector preservation, firmware protection
+PASS 260 interrupted erase/program/commit cases
+PASS committed corruption and invalid metadata fail closed; sequence exhaustion
+<end of output>
+Test time =   2.90 sec
+----------------------------------------------------------
+Test Passed.
+"msc_store" end time: Oct 28 06:12 CDT
+"msc_store" time elapsed: 00:00:02
+----------------------------------------------------------
+
+14/14 Testing: rom_store
+14/14 Test: rom_store
+Command: "/home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug/test_rom_store"
+Directory: /home/mozzwald/nio/dual-cs-fixed-read/bridges/rp2350-springboard/build/dual-Debug
+"rom_store" start time: Oct 28 06:12 CDT
+Output:
+----------------------------------------------------------
+ROM store PASS: power cuts, bad CRC/schema, bounds, isolation, nonce/order, activation, rollback, recovery, framing
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"rom_store" end time: Oct 28 06:12 CDT
+"rom_store" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 28 06:12 CDT

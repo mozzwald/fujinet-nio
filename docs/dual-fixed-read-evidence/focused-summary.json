@@ -1,0 +1,13 @@
+{
+  "result": "PASS",
+  "cases": 320,
+  "scope": "actual compiled ARM + strict persistent PIO model; synthetic instruction costs, no hardware timing claim",
+  "groups": {
+    "normal_pairs": 192,
+    "consecutive_100": 4,
+    "held_OE_pairs": 40,
+    "invalid_selection": 30,
+    "ending_phases": 48,
+    "CPU_stalls": 6
+  }
+}
