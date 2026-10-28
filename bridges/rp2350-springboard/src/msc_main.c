@@ -7,6 +7,9 @@
 #include "persistent_reply.h"
 #endif
 #include "rom_image.h"
+#if SB_WRITE_CAPTURE
+#include "write_capture_runtime.h"
+#endif
 #include <apio.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
@@ -219,7 +222,14 @@ static void console(void){
   char c=(char)tud_cdc_read_char();
   if(c=='\r')continue;
   if(c=='\n'){
-   line[used]=0;if(!discard&&(!strcmp(line,"status")||!strcmp(line,"help")))status();
+   line[used]=0;
+#if SB_WRITE_CAPTURE
+   if(!discard&&sb_write_capture_console(line,out,sizeof out,
+       active&&!owner_fault&&!exception_fault&&rom_ready)){
+    out_used=(unsigned)strlen(out);out_at=0;
+   }else
+#endif
+   if(!discard&&(!strcmp(line,"status")||!strcmp(line,"help")))status();
    used=0;discard=false;if(out_used>out_at)break;
   }else if(c>=32&&c<=126&&used<sizeof line-1&&!discard)line[used++]=c;
   else discard=true;

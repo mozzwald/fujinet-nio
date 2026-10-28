@@ -1,6 +1,9 @@
 /* Test-only fixed-read bridge: execute candidate PIO while Unicorn runs the actual
  * linked ARM function. Assertions match the native rearm safety checks. */
 #include "pio_rearm_program.h"
+#ifdef SB_WRITE_CAPTURE_TEST
+#include "write_capture.h"
+#endif
 #include <apio.h>
 #include <epio_priv.h>
 #include <stdint.h>
@@ -35,7 +38,11 @@ uint32_t sb_cosim_word(unsigned addr) {
 int sb_cosim_init(void) {
     if(s.e)epio_free(s.e);
     memset(&s,0,sizeof(s));
-    sb_pio_rearm_program_init(true);s.e=epio_init();if(!s.e)return -1;
+    sb_pio_rearm_program_init(true);
+#ifdef SB_WRITE_CAPTURE_TEST
+    sb_write_capture_program_init(true);
+#endif
+    s.e=epio_init();if(!s.e)return -1;
     epio_set_gpio_output_control(s.e,39,1);epio_update_from_apio(s.e);
     for(unsigned i=0;i<32;++i){s.code[i]=epio_get_instr(s.e,1,i);epio_set_instr(s.e,1,i,s.code[i]&~0x1800u);}
     s.pins=s.pipe[0]=s.pipe[1]=IDLE;s.bound=5;return 0;

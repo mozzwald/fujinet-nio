@@ -1,0 +1,15 @@
+FORM ID 1000 AT (0 0 160 160) USABLE
+BEGIN
+ TITLE "CS1 Write E3 RAM"
+ BUTTON "W0 = 1234" ID 1001 AT (3 126 74 18) USABLE
+ BUTTON "W2 = A55A" ID 1002 AT (82 126 75 18) USABLE
+END
+ALERT ID 1100
+CONFIRMATION
+DEFAULTBUTTON 0
+BEGIN
+ TITLE "One CS1 write"
+ MESSAGE "Only after PC capture is armed. Write once. No readback or register ACK is implied; PC verifies the captured data."
+ BUTTONS "Cancel" "Write"
+END
+VERSION ID 1 "E3.20261028.1"
