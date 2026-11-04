@@ -14,7 +14,7 @@ import struct
 import subprocess
 
 from elftools.elf.elffile import ELFFile
-from unicorn import Uc, UC_ARCH_ARM, UC_MODE_THUMB, UC_MODE_MCLASS, UC_HOOK_CODE
+from unicorn import Uc, UC_ARCH_ARM, UC_MODE_THUMB, UC_MODE_MCLASS, UC_HOOK_CODE, UC_HOOK_MEM_READ, UC_HOOK_MEM_WRITE
 from unicorn.arm_const import *
 
 RESET = 1 << 45
@@ -39,7 +39,9 @@ def pins(addr, controls):
 
 
 class Runner:
-    def __init__(self, elf, library):
+    def __init__(self, elf, library, mmio_backend="shadow", cycle_observer=None):
+        self.mmio_backend=mmio_backend
+        self.cycle_observer=cycle_observer
         self.lib = C.CDLL(str(library.resolve()))
         for name in ('clock', 'fstat', 'gpio', 'events', 'driven', 'word'):
             getattr(self.lib, 'sb_cosim_' + name).restype = C.c_uint32
@@ -92,6 +94,7 @@ class Runner:
                 self.lib.sb_cosim_bus(pins(address, controls), address)
                 error = self.lib.sb_cosim_step(1)
                 assert not error, ('PIO safety', error, t, segments, profile, stall)
+                if self.cycle_observer:self.cycle_observer(self.lib)
             if self.lib.sb_cosim_clock() >= end:
                 u.mem_write(STOP, b'\1')
 
@@ -173,10 +176,21 @@ class Runner:
                 self.lib.sb_cosim_cancel()
 
         u.hook_add(UC_HOOK_CODE, code)
-        # MMIO callbacks return values directly. Writing backing RAM from an
-        # ordinary read hook corrupts Unicorn IT-state across a TB restart.
-        u.mmio_map(PIO, 0x1000, read, None, write, None)
-        u.mmio_map(0xd0000000, 0x1000, sio_read, None, None, None)
+        # Normal mapped registers avoid Unicorn MMIO callback ITSTATE defects.
+        def mapped(base, reader, writer=None):
+            if self.mmio_backend=='callback':
+                u.mmio_map(base,0x1000,reader,None,writer,None)
+                return
+            u.mem_map(base,0x1000)
+            def rd(uc,access,address,size,value,_):
+                uc.mem_write(address,int(reader(uc,address-base,size,None)).to_bytes(size,'little'))
+            def wr(uc,access,address,size,value,_):
+                assert writer is not None
+                writer(uc,address-base,size,value,None)
+            u.hook_add(UC_HOOK_MEM_READ,rd,begin=base,end=base+0xfff)
+            u.hook_add(UC_HOOK_MEM_WRITE,wr,begin=base,end=base+0xfff)
+        mapped(PIO,read,write)
+        mapped(0xd0000000,sio_read)
         u.emu_start(self.symbols['sb_persistent_reply'], RETURN + 2, count=100000)
         assert returned, 'ARM loop did not stop'
         totals = dict(zip(('requests', 'posted', 'completed', 'attempted', 'cancelled', 'fault'), struct.unpack('<6I', u.mem_read(TOTALS, 24))))

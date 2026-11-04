@@ -438,4 +438,10 @@ ROM service continues from SRAM, with validated import only on controlled RP2350
 startup. It preserves the proven ROM-only engine; CS1 qualification is separate.
 No build/script automatically flashes or resets hardware.
 
-The frozen ROM-drive source and build identity are recorded in [msc-rom/BASELINE.md](msc-rom/BASELINE.md).
+## CS1 with persistent ROM drive
+
+[CS1 MSC Stage A](CS1_MSC.md) is a separate test candidate combining the existing
+asynchronous CS1 engine and USB ROM storage. Module-delivered RAM diagnostic,
+identity-checked PC service and serial palm-sync collection prepare the first
+four-token physical exchange; no scope is required for the initial functional
+run. Hardware remains unqualified until that run; no build auto-flashes.

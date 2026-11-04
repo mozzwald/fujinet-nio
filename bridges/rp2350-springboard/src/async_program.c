@@ -108,6 +108,11 @@ void sb_async_program_init(bool enable) {
     APIO_SM_SHIFTCTRL_SET(0); APIO_SM_PINCTRL_SET(APIO_IN_BASE(17));
     APIO_SM_JMP_TO_START();
 
+    /* Hardware APIO shares one scratch buffer across blocks. Commit these
+     * guards before the PIO2 reset code overwrites scratch words 0..5. */
+    APIO_SET_BLOCK_FROM_VAR(0, SB_CS1_LOW_START);
+    APIO_END_BLOCK();
+
     /* Independent high-window reset guard. */
     APIO_SET_BLOCK_VAR(2); APIO_GPIOBASE_16(); APIO_SET_SM_VAR(0);
     APIO_WRAP_BOTTOM();
@@ -154,7 +159,9 @@ void sb_async_program_init(bool enable) {
             APIO_SM_EXECCTRL_SET(APIO_STATUS_SEL_IRQ|APIO_STATUS_N(7)|APIO_STATUS_N_IRQ_PREVPIO);
             APIO_SM_SHIFTCTRL_SET(APIO_IN_SHIFTDIR_L|APIO_OUT_SHIFTDIR_R);
             APIO_SM_PINCTRL_SET(0);APIO_SM_EXEC_INSTR(APIO_SET_Y(5));APIO_SM_JMP_TO_START();
-            APIO_SET_BLOCK_FROM_VAR(0,start+13);APIO_END_BLOCK();continue;
+            /* Only append the low capture. Scratch 0..18 now belongs to
+             * other blocks; rewriting it would corrupt the committed guards. */
+            APIO_SET_BLOCK_FROM_VAR(0,start+13);APIO_END_BLOCK_FROM(start);continue;
         }
         APIO_ADD_INSTR(APIO_IRQ_CLEAR(3)); /* clear BEFORE capture, never after an ending */
         APIO_ADD_INSTR(APIO_IN_PINS(32));
