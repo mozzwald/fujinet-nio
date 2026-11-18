@@ -32,6 +32,14 @@ public:
     // When set, wait_for_readable() with nothing to read blocks for the whole
     // timeout on this clock.
     std::uint64_t* clock{nullptr};
+    std::uint32_t epoch{0};
+    bool rejectWrite{false};
+    std::uint32_t connection_epoch() const override { return epoch; }
+    bool write_for_epoch(const std::uint8_t* buf, std::size_t len, std::uint32_t expected) override {
+        if (rejectWrite || expected != epoch) return false;
+        write(buf, len);
+        return true;
+    }
 
     void push(const Bytes& b) { _rx.insert(_rx.end(), b.begin(), b.end()); }
     Bytes take()
@@ -559,4 +567,46 @@ TEST_CASE("with_packet_link wraps a stream only when asked")
     CHECK(linked->packet_io()->capacity() == PacketLink::kDefaultCapacity);
 
     CHECK(fujinet::io::with_packet_link(true, nullptr) == nullptr);
+}
+
+TEST_CASE("packet link discards partial records after physical reconnect") {
+    Link t;
+    t.sync(1);
+    const auto old = record(Kind::Packet, 1, {1, 2, 3});
+    t.stream.push(Bytes(old.begin(), old.begin() + 8));
+    CHECK(t.receive() == PacketIOStatus::Incomplete);
+    ++t.stream.epoch;
+    t.stream.push(sync_record(2));
+    CHECK(t.receive() == PacketIOStatus::NoData);
+    CHECK(t.stream.take() == sync_ack(2));
+    t.stream.push(record(Kind::Packet, 2, {4, 5}));
+    CHECK(t.receive() == PacketIOStatus::Ok);
+    CHECK(t.buf[0] == 4);
+}
+
+TEST_CASE("packet link never sends an old response or unanswered error to a new peer") {
+    Link t;
+    t.sync(1);
+    t.stream.push(record(Kind::Packet, 1, {1}));
+    REQUIRE(t.receive() == PacketIOStatus::Ok);
+    ++t.stream.epoch;
+    const std::uint8_t answer = 42;
+    CHECK(t.link.send(&answer, 1) == PacketIOStatus::SendFailed);
+    CHECK(t.stream.take().empty());
+    t.stream.push(sync_record(1)); // A new bridge can reuse the same wire generation.
+    CHECK(t.receive() == PacketIOStatus::NoData);
+    CHECK(t.stream.take() == sync_ack(1));
+}
+
+TEST_CASE("packet link abandons session when complete-record acceptance fails") {
+    Link t;
+    t.sync(1);
+    t.stream.push(record(Kind::Packet, 1, {1}));
+    REQUIRE(t.receive() == PacketIOStatus::Ok);
+    t.stream.rejectWrite = true;
+    const std::uint8_t answer = 42;
+    CHECK(t.link.send(&answer, 1) == PacketIOStatus::SendFailed);
+    CHECK(t.link.state_name() == "unsynchronised");
+    CHECK(t.link.stats().answers == 0);
+    CHECK(t.stream.take().empty());
 }

@@ -80,6 +80,14 @@ and ESP32. It exposes:
 See [`packet_link.md`](packet_link.md). On ESP32 the `uart` provider finds the
 UART beneath a packet link, so `uart.*` keeps working on packet-link boards.
 
+### Provider: `usb`
+
+The [ESP32-S3 USB host profile](esp32s3-usb-host.md) registers the read-only
+`usb.status` command: CDC state/interface identity, epoch, RX backlog,
+connection/reconnect/error/overflow/TX counters, byte counts and the last error.
+`connected` means CDC open with DTR asserted; use `link.status` for packet
+synchronization. This provider adds no settings commands.
+
 ### Provider: `visor`
 
 The optional POSIX Visor USB Host profile registers this provider:

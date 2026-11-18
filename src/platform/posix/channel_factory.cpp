@@ -39,6 +39,9 @@ create_channel_for_profile(const build::BuildProfile& profile, const config::Fuj
     using build::ChannelKind;
 
     switch (profile.primaryChannel) {
+    case ChannelKind::UsbCdcHost:
+        std::cerr << "UsbCdcHost is supported only by the ESP32-S3 host profile\n";
+        return nullptr;
     case ChannelKind::Pty:
         std::cout << "[ChannelFactory] Using PTY channel (Pty).\n";
         return posix::create_pty_channel(config);

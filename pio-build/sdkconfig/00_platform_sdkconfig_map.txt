@@ -4,6 +4,7 @@
 #################################################################
 # board mappings to sdk templates
 #################################################################
+fujibus-link-usbhost-s3-n16r8=common,wifi,fatfs,fs-littlefs,flash-16mb,spiram-oct80,usb-host
 
 fujibus-usbcdc-nosd-s3-wroom-1-n16r8=common,wifi,fatfs,fs-littlefs,spiram-oct80,tinyusb-cdc2,fujibus-usbcdc-ports
 fujibus-usbcdc-freenove-s3-wroom-1-n16r8=common,wifi,fatfs,fs-littlefs,spiram-oct80,tinyusb-cdc2,fujibus-usbcdc-ports

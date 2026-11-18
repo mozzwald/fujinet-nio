@@ -46,6 +46,15 @@ public:
     // Write len bytes from buffer.
     virtual void write(const std::uint8_t* buffer, std::size_t len) = 0;
 
+    // Accept bytes only for this physical session. Reconnecting channels should
+    // override this to compare the epoch and accept the complete buffer atomically.
+    // False means the caller must abandon its session; never retry a suffix.
+    virtual bool write_for_epoch(const std::uint8_t* buffer, std::size_t len, std::uint32_t epoch) {
+        if (connection_epoch() != epoch) return false;
+        write(buffer, len);
+        return connection_epoch() == epoch;
+    }
+
     // Changes whenever the peer behind the channel changes: a connection made or
     // lost. A consumer holding partly received protocol state compares it before
     // using new bytes, and drops that state when it differs, so a half frame from

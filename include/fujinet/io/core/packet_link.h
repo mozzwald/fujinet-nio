@@ -89,10 +89,12 @@ private:
     void drop_front(std::size_t n);
     void abandon_front();
     void sync(std::uint8_t generation, const std::vector<std::uint8_t>& body);
-    void reply(Kind kind, std::uint8_t generation, const std::uint8_t* body = nullptr, std::size_t size = 0);
+    bool reply(Kind kind, std::uint8_t generation, const std::uint8_t* body = nullptr, std::size_t size = 0);
     void reply_error(std::uint8_t generation, Error e);
+    bool update_epoch();
 
     Channel& _stream;
+    std::uint32_t _epoch;
     Clock _now;
     std::uint32_t _recordTimeoutMs;
     std::vector<std::uint8_t> _rx;
@@ -126,6 +128,7 @@ public:
     PacketLinkChannel(std::unique_ptr<Channel> stream, const PacketLinkSettings& settings);
 
     IPacketIO* packet_io() override { return &_link; }
+    std::uint32_t connection_epoch() const override { return _stream->connection_epoch(); }
     bool available() override { return false; }
     std::size_t read(std::uint8_t*, std::size_t) override { return 0; }
     void write(const std::uint8_t*, std::size_t) override {}

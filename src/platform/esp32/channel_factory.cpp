@@ -9,6 +9,9 @@
 #include "fujinet/config/fuji_config.h"
 #include "fujinet/platform/esp32/usb_cdc_channel.h"
 #include "fujinet/platform/esp32/uart_channel.h"
+#if defined(FN_BUILD_ESP32_USB_HOST_LINK)
+#include "fujinet/platform/esp32/usb_cdc_host_channel.h"
+#endif
 
 extern "C" {
 #include "sdkconfig.h"
@@ -40,6 +43,16 @@ create_channel_for_profile(const build::BuildProfile& profile, const config::Fuj
     using build::ChannelKind;
 
     switch (profile.primaryChannel) {
+
+    case ChannelKind::UsbCdcHost:
+#if defined(FN_BUILD_ESP32_USB_HOST_LINK)
+        return with_packet_link(profile, config, std::make_unique<esp32::UsbCdcHostChannel>(
+            io::packet_link_settings(config.channel.packetLink.capacity,
+                                     config.channel.packetLink.recordTimeoutMs, false).capacity));
+#else
+        FN_LOGE(TAG, "UsbCdcHost requires the ESP32-S3 USB host profile");
+        return nullptr;
+#endif
 
     case ChannelKind::UsbCdcDevice:
 #if CONFIG_TINYUSB_CDC_ENABLED && CONFIG_FN_FUJIBUS_TRANSPORT_USB_CDC

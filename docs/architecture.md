@@ -22,6 +22,9 @@ what is still untested, including runtime TLS memory peaks, is listed in its REA
 The optional [Visor USB Host profile](visor-usb-host.md) receives raw FujiBus
 packets through a POSIX-local libusb adapter; existing services remain unchanged.
 
+The opt-in [ESP32-S3 CDC host profile](esp32s3-usb-host.md) hosts the RP2350
+Springboard bridge over the existing packet link, with UART logs/diagnostics.
+
 ## **Table of Contents**
 1. [Overview](#overview)  
 2. [Design Principles](#design-principles)  

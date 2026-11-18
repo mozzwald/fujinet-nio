@@ -39,6 +39,10 @@ extern "C" {
 
 #include "fujinet/core/logging.h"
 #include "fujinet/diag/diagnostic_provider.h"
+#if defined(FN_BUILD_ESP32_USB_HOST_LINK)
+#include "fujinet/platform/esp32/usb_cdc_host_channel.h"
+#include "fujinet/io/core/packet_link.h"
+#endif
 #include "fujinet/diag/diagnostic_registry.h"
 #include "fujinet/fs/boot_mount.h"
 #include "fujinet/hotsync/hotsync_init.h"
@@ -330,6 +334,15 @@ extern "C" void fujinet_core_task(void* arg)
         return;
     }
 
+    std::unique_ptr<fujinet::diag::IDiagnosticProvider> usbHostDiag;
+#if defined(FN_BUILD_ESP32_USB_HOST_LINK)
+    if (auto* link = dynamic_cast<fujinet::io::PacketLinkChannel*>(channel.get())) {
+        if (auto* usb = dynamic_cast<fujinet::platform::esp32::UsbCdcHostChannel*>(&link->stream())) {
+            usbHostDiag = fujinet::diag::create_usb_host_diagnostic_provider([usb] { return usb->snapshot(); });
+            diagRegistry.add_provider(*usbHostDiag);
+        }
+    }
+#endif
     if (channel) {
         uartChannelDiag = fujinet::diag::create_uart_channel_diagnostic_provider(channel.get(), services.fuji);
         if (uartChannelDiag) diagRegistry.add_provider(*uartChannelDiag);

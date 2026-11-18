@@ -29,6 +29,7 @@ std::uint32_t clamp_record_timeout(std::uint32_t ms)
 PacketLink::PacketLink(Channel& stream, std::size_t capacity, Clock now, std::uint32_t recordTimeoutMs)
     : IPacketIO(capacity)
     , _stream(stream)
+    , _epoch(stream.connection_epoch())
     , _now(now ? std::move(now) : Clock(steady_ms))
     , _recordTimeoutMs(clamp_record_timeout(recordTimeoutMs))
 {
@@ -52,8 +53,10 @@ std::string_view PacketLink::state_name() const
 
 bool PacketLink::wait_for_readable(std::chrono::milliseconds timeout)
 {
+    update_epoch();
     const std::uint64_t started = _now();
     const bool ready = _stream.wait_for_readable(timeout);
+    if (update_epoch()) return true;
     if (_frontIncomplete && _now() - started >= _recordTimeoutMs) _frontStale = true;
     return ready;
 }
@@ -89,10 +92,23 @@ std::vector<std::uint8_t> PacketLink::encode(Kind kind, std::uint8_t generation,
     return out;
 }
 
-void PacketLink::reply(Kind kind, std::uint8_t generation, const std::uint8_t* body, std::size_t size)
+bool PacketLink::update_epoch()
+{
+    const auto epoch = _stream.connection_epoch();
+    if (epoch == _epoch) return false;
+    reset();
+    _epoch = epoch;
+    return true;
+}
+
+bool PacketLink::reply(Kind kind, std::uint8_t generation, const std::uint8_t* body, std::size_t size)
 {
     const auto record = encode(kind, generation, body, size);
-    _stream.write(record.data(), record.size());
+    if (!_stream.write_for_epoch(record.data(), record.size(), _epoch)) {
+        reset();
+        return false;
+    }
+    return true;
 }
 
 void PacketLink::reply_error(std::uint8_t generation, Error e)
@@ -107,6 +123,7 @@ void PacketLink::fill()
     std::uint8_t chunk[256];
     while (_rx.size() < limit && _stream.available()) {
         const std::size_t n = _stream.read(chunk, std::min(sizeof(chunk), limit - _rx.size()));
+        if (update_epoch()) return; // Never combine bytes across physical sessions.
         if (n == 0) break;
         _rx.insert(_rx.end(), chunk, chunk + n);
         // Reading late after a busy spell refreshes this too, so time spent
@@ -158,13 +175,14 @@ void PacketLink::sync(std::uint8_t generation, const std::vector<std::uint8_t>& 
 
 PacketReceiveResult PacketLink::receive(std::uint8_t* buffer, std::size_t limit)
 {
+    update_epoch();
     if (_state == State::Busy) {
         // NIO reads again only after answering (see the class comment), so this
         // request got no answer: it was not a valid FujiBus packet, or its answer
         // could not be sent. It may have run.
         ++_stats.unanswered;
-        reply_error(_generation, Error::Unanswered);
         _state = State::Idle;
+        reply_error(_generation, Error::Unanswered);
     }
     _frontIncomplete = false;
     for (;;) {
@@ -251,11 +269,12 @@ PacketReceiveResult PacketLink::receive(std::uint8_t* buffer, std::size_t limit)
 
 PacketIOStatus PacketLink::send(const std::uint8_t* packet, std::size_t size)
 {
+    if (update_epoch()) return PacketIOStatus::SendFailed;
     if (size == 0) return PacketIOStatus::EmptyPacket;
     if (size > capacity()) return PacketIOStatus::Oversized;
     // Only the outstanding request of the current generation gets an answer.
     if (_state != State::Busy) return PacketIOStatus::SendFailed;
-    reply(Kind::Packet, _generation, packet, size);
+    if (!reply(Kind::Packet, _generation, packet, size)) return PacketIOStatus::SendFailed;
     _state = State::Idle;
     ++_stats.answers;
     return PacketIOStatus::Ok;

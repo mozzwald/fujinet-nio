@@ -32,6 +32,7 @@ set(FN_IDF_SOURCES
         lib/diagnostic_parse.cpp
         lib/diagnostic_registry.cpp
         lib/diagnostic_packet_link_provider.cpp
+        lib/diagnostic_usb_host_provider.cpp
         lib/directory_cache.cpp
         lib/diagnostic_uart_channel_provider.cpp
         lib/disk/atr_image.cpp
@@ -168,6 +169,7 @@ set(FN_IDF_SOURCES
         platform/esp32/udp_socket_ops_default.cpp
         platform/esp32/udp_socket_ops_espidf.cpp
         platform/esp32/usb_cdc_channel.cpp
+        platform/esp32/usb_cdc_host_channel.cpp
         platform/esp32/wifi_link.cpp
 # __TARGET_SOURCES_END__
         ../third_party/cjson/cJSON.c

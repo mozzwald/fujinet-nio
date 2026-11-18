@@ -497,6 +497,13 @@ that configuration (or regenerate it from the updated defaults).
     (`channel.serial_port`, or `FN_SERIAL_PORT`).
   - CMake preset: `fujibus-link-serial-debug`
 
+- `FN_BUILD_ESP32_USB_HOST_LINK`
+  - `machine = Machine::FujiNetESP32`, `primaryTransport = TransportKind::FujiBusNative`
+  - `primaryChannel = ChannelKind::UsbCdcHost`, `packetLink = true`
+  - PlatformIO environment: `fujibus-link-usbhost-s3-n16r8`.
+  - Native USB hosts the Springboard RP2350; UART0 on the USB-UART connector
+    carries logs and diagnostics. See [setup and support](esp32s3-usb-host.md).
+
 - `FN_BUILD_ESP32_FUJIBUS_LINK_UART`
   - `machine          = Machine::FujiNetESP32`
   - `primaryTransport = TransportKind::FujiBusNative`

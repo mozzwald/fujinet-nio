@@ -190,3 +190,19 @@ link (see [diagnostics](diagnostics.md)):
 - `link.save`: writes `channel.packet_link` to `fujinet.yaml`.
 
 On ESP32 the `uart.*` commands still reach the UART underneath the link.
+
+## Physical stream changes
+
+Reconnecting byte channels advance `Channel::connection_epoch()`. The NIO packet
+link observes this before RX/TX and after a stream read: partial records and an
+outstanding response belong to the old physical session and are discarded.
+The next peer must send a fresh Sync, even when it reuses the same wire generation.
+
+`Channel::write_for_epoch()` permits a reconnecting channel to atomically compare
+that epoch and accept one whole record. Failed acceptance abandons the packet-link
+session; no truncated record or response is replayed after reconnect. The default
+implementation preserves existing channels' byte-write behavior, checking their
+epoch before and after the write. Channels with asynchronous peer changes must
+provide their own atomic acceptance implementation, as the S3 CDC host does.
+These are internal lifecycle interfaces; the packet-link wire format is unchanged.
+Embedders must rebuild against the updated `Channel` C++ interface.

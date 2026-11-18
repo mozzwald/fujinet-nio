@@ -115,6 +115,8 @@ add_test(NAME posix-clock-test-isolation
 # Python unit tests (tooling). Keep these lightweight so they can run everywhere.
 find_package(Python3 COMPONENTS Interpreter)
 if(Python3_Interpreter_FOUND)
+    add_test(NAME esp32-usb-host-profile
+        COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_esp32_usb_host.py)
     add_test(NAME esp32-usb-cdc-channel
         COMMAND ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
             ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_esp32_usb_cdc_channel.py)
